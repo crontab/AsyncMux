@@ -7,18 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		360EBA4E296A2C10001EC729 /* WeatherAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360EBA4D296A2C10001EC729 /* WeatherAPI.swift */; };
+		360EBA50296A2C50001EC729 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 360EBA4F296A2C50001EC729 /* README.md */; };
+		3625CE1E296A283800D09A8F /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3625CE1D296A283800D09A8F /* Globals.swift */; };
 		36FB7010296A10F90006ACBA /* AsyncMuxDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */; };
 		36FB7012296A10F90006ACBA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB7011296A10F90006ACBA /* ContentView.swift */; };
 		36FB7014296A10FB0006ACBA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36FB7013296A10FB0006ACBA /* Assets.xcassets */; };
 		36FB7017296A10FB0006ACBA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36FB7016296A10FB0006ACBA /* Preview Assets.xcassets */; };
+		36FB701E296A12D20006ACBA /* URLRequestEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB701D296A12D20006ACBA /* URLRequestEx.swift */; };
+		36FB7020296A14400006ACBA /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB701F296A14400006ACBA /* AppError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		360EBA4C296A2AA9001EC729 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		360EBA4D296A2C10001EC729 /* WeatherAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAPI.swift; sourceTree = "<group>"; };
+		360EBA4F296A2C50001EC729 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		3625CE1D296A283800D09A8F /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		36FB700C296A10F90006ACBA /* AsyncMuxDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AsyncMuxDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMuxDemoApp.swift; sourceTree = "<group>"; };
 		36FB7011296A10F90006ACBA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		36FB7013296A10FB0006ACBA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		36FB7016296A10FB0006ACBA /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		36FB701D296A12D20006ACBA /* URLRequestEx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestEx.swift; sourceTree = "<group>"; };
+		36FB701F296A14400006ACBA /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +46,7 @@
 		36FB7003296A10F90006ACBA = {
 			isa = PBXGroup;
 			children = (
+				360EBA4F296A2C50001EC729 /* README.md */,
 				36FB700E296A10F90006ACBA /* AsyncMuxDemo */,
 				36FB700D296A10F90006ACBA /* Products */,
 			);
@@ -51,9 +63,14 @@
 		36FB700E296A10F90006ACBA /* AsyncMuxDemo */ = {
 			isa = PBXGroup;
 			children = (
-				36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */,
+				3625CE1D296A283800D09A8F /* Globals.swift */,
+				36FB701F296A14400006ACBA /* AppError.swift */,
+				36FB701D296A12D20006ACBA /* URLRequestEx.swift */,
+				360EBA4D296A2C10001EC729 /* WeatherAPI.swift */,
 				36FB7011296A10F90006ACBA /* ContentView.swift */,
+				36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */,
 				36FB7013296A10FB0006ACBA /* Assets.xcassets */,
+				360EBA4C296A2AA9001EC729 /* Info.plist */,
 				36FB7015296A10FB0006ACBA /* Preview Content */,
 			);
 			path = AsyncMuxDemo;
@@ -125,6 +142,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				360EBA50296A2C50001EC729 /* README.md in Resources */,
 				36FB7017296A10FB0006ACBA /* Preview Assets.xcassets in Resources */,
 				36FB7014296A10FB0006ACBA /* Assets.xcassets in Resources */,
 			);
@@ -137,7 +155,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36FB7020296A14400006ACBA /* AppError.swift in Sources */,
 				36FB7012296A10F90006ACBA /* ContentView.swift in Sources */,
+				36FB701E296A12D20006ACBA /* URLRequestEx.swift in Sources */,
+				360EBA4E296A2C10001EC729 /* WeatherAPI.swift in Sources */,
+				3625CE1E296A283800D09A8F /* Globals.swift in Sources */,
 				36FB7010296A10F90006ACBA /* AsyncMuxDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -195,12 +217,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG PRINT_REQUEST_URLS PRINT_JSON PRINT_JSON_ERRORS";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -249,7 +271,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -270,7 +292,7 @@
 				DEVELOPMENT_TEAM = 639KEQWW6F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = AsyncMuxDemo/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -299,7 +321,7 @@
 				DEVELOPMENT_TEAM = 639KEQWW6F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = AsyncMuxDemo/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

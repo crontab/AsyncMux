@@ -8,19 +8,26 @@
 import SwiftUI
 
 struct ContentView: View {
+	@State var temp: String = "-"
+
 	var body: some View {
 		VStack {
 			Image(systemName: "globe")
 				.imageScale(.large)
 				.foregroundColor(.accentColor)
-			Text("Hello, world!")
+			Text("Temperature: \(temp)")
 		}
 		.padding()
+		.task {
+			guard !Globals.isPreview else { return }
+			temp = "-24ºC"
+		}
 	}
 }
 
+
 struct ContentView_Previews: PreviewProvider {
 	static var previews: some View {
-		ContentView()
+		ContentView(temp: "12ºC")
 	}
 }
