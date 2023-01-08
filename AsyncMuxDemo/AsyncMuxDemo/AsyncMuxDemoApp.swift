@@ -13,9 +13,7 @@ struct AsyncMuxDemoApp: App {
 	@Environment(\.scenePhase) var scenePhase
 
 	var body: some Scene {
-		WindowGroup {
-			ContentView()
-		}
+		scene()
 		.onChange(of: scenePhase) { newPhase in
 			switch newPhase {
 				case .background:
@@ -28,5 +26,17 @@ struct AsyncMuxDemoApp: App {
 					break
 			}
 		}
+	}
+
+	func scene() -> some Scene {
+#if os(iOS)
+		WindowGroup {
+			ContentView()
+		}
+#else
+		Window("AsyncMux Demo", id: String(describing: self)) {
+			ContentView()
+		}
+#endif
 	}
 }
