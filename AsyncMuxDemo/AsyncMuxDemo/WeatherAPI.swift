@@ -9,31 +9,36 @@ import Foundation
 import CoreLocation
 
 
-struct WeatherItem: Hashable {
+struct WeatherItem: Codable, Hashable {
 	let place: WeatherPlace
 	let weather: Weather?
 }
 
 
-struct WeatherPlace: CustomDebugStringConvertible, Hashable {
+struct WeatherPlace: Codable, CustomDebugStringConvertible, Hashable {
 
 	let city: String
 	let countryCode: String
-	let coordinate: CLLocationCoordinate2D
+	let latitude: Double
+	let longitude: Double
 
 	var description: String {
-		"\(city), \(countryCode) [\(coordinate.latitude), \(coordinate.longitude)]"
+		"\(city), \(countryCode) [\(latitude), \(longitude)]"
 	}
 
 	var debugDescription: String {
 		description
 	}
+
+	var coordinate: CLLocationCoordinate2D {
+		.init(latitude: latitude, longitude: longitude)
+	}
 }
 
 
-struct Weather: Decodable, Hashable {
+struct Weather: Codable, Hashable {
 
-	struct Details: Decodable, Hashable {
+	struct Details: Codable, Hashable {
 		let temperature: Double
 		let weathercode: Int
 	}
@@ -44,11 +49,17 @@ struct Weather: Decodable, Hashable {
 
 class WeatherAPI {
 
-	static let geocoder = CLGeocoder()
+	static var placeNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Tokyo, JP"] {
+		didSet {
+			if placeNames != oldValue {
+				mux.refresh()
+			}
+		}
+	}
 
 
-	static func fetch(for placeNames: [String]) async throws -> [WeatherItem] {
-		// Geocoding requests should be performed one at a time, hence:
+	static var mux = AsyncMux<[WeatherItem]> {
+		// Geocoding requests should be performed one at a time, hence the loop
 		var result: [WeatherItem] = []
 		for name in placeNames {
 			guard let place = try await geocoder.geocodeAddressString(name).first?.weatherPlace else {
@@ -61,6 +72,9 @@ class WeatherAPI {
 	}
 
 
+	private static let geocoder = CLGeocoder()
+
+
 	private static func fetchCurrent(for location: CLLocationCoordinate2D) async throws -> Weather {
 		try await URLRequest(getURL: URL(string: "https://api.open-meteo.com/v1/forecast?latitude=\(location.latitude)&longitude=\(location.longitude)&current_weather=true")!)
 			.perform(type: Weather.self)
@@ -71,7 +85,7 @@ class WeatherAPI {
 extension CLPlacemark {
 
 	var weatherPlace: WeatherPlace {
-		WeatherPlace(city: locality ?? name ?? "-", countryCode: isoCountryCode ?? "-", coordinate: location?.coordinate ?? .init())
+		WeatherPlace(city: locality ?? name ?? "-", countryCode: isoCountryCode ?? "-", latitude: location?.coordinate.latitude ?? 0, longitude: location?.coordinate.longitude ?? 0)
 	}
 }
 
