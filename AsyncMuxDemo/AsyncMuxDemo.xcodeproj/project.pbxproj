@@ -7,11 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3601AD9B296B78BD00098008 /* AsyncMux in Frameworks */ = {isa = PBXBuildFile; productRef = 3601AD9A296B78BD00098008 /* AsyncMux */; };
 		360EBA4E296A2C10001EC729 /* WeatherAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360EBA4D296A2C10001EC729 /* WeatherAPI.swift */; };
-		360EBA50296A2C50001EC729 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 360EBA4F296A2C50001EC729 /* README.md */; };
 		360EBA56296A5388001EC729 /* ErrorAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360EBA55296A5388001EC729 /* ErrorAlert.swift */; };
 		360EBA58296A5C7E001EC729 /* ServerTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360EBA57296A5C7E001EC729 /* ServerTask.swift */; };
-		360EBA5A296A6A54001EC729 /* AsyncMux.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360EBA59296A6A54001EC729 /* AsyncMux.swift */; };
 		3625CE1E296A283800D09A8F /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3625CE1D296A283800D09A8F /* Globals.swift */; };
 		36FB7010296A10F90006ACBA /* AsyncMuxDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */; };
 		36FB7012296A10F90006ACBA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB7011296A10F90006ACBA /* ContentView.swift */; };
@@ -22,12 +21,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3601AD99296B78AF00098008 /* AsyncMux */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = AsyncMux; path = ..; sourceTree = "<group>"; };
 		360EBA4C296A2AA9001EC729 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		360EBA4D296A2C10001EC729 /* WeatherAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAPI.swift; sourceTree = "<group>"; };
-		360EBA4F296A2C50001EC729 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		360EBA55296A5388001EC729 /* ErrorAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorAlert.swift; sourceTree = "<group>"; };
 		360EBA57296A5C7E001EC729 /* ServerTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerTask.swift; sourceTree = "<group>"; };
-		360EBA59296A6A54001EC729 /* AsyncMux.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMux.swift; sourceTree = "<group>"; };
 		3625CE1D296A283800D09A8F /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		36FB700C296A10F90006ACBA /* AsyncMuxDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AsyncMuxDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMuxDemoApp.swift; sourceTree = "<group>"; };
@@ -43,18 +41,35 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3601AD9B296B78BD00098008 /* AsyncMux in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3697D0F8296B769000FE3B76 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				3601AD99296B78AF00098008 /* AsyncMux */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		3697D0FA296B76C100FE3B76 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		36FB7003296A10F90006ACBA = {
 			isa = PBXGroup;
 			children = (
-				360EBA4F296A2C50001EC729 /* README.md */,
 				36FB700E296A10F90006ACBA /* AsyncMuxDemo */,
+				3697D0F8296B769000FE3B76 /* Packages */,
 				36FB700D296A10F90006ACBA /* Products */,
+				3697D0FA296B76C100FE3B76 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,7 +87,6 @@
 				3625CE1D296A283800D09A8F /* Globals.swift */,
 				36FB701F296A14400006ACBA /* AppError.swift */,
 				36FB701D296A12D20006ACBA /* URLRequestEx.swift */,
-				360EBA59296A6A54001EC729 /* AsyncMux.swift */,
 				360EBA4D296A2C10001EC729 /* WeatherAPI.swift */,
 				360EBA55296A5388001EC729 /* ErrorAlert.swift */,
 				360EBA57296A5C7E001EC729 /* ServerTask.swift */,
@@ -109,6 +123,9 @@
 			dependencies = (
 			);
 			name = AsyncMuxDemo;
+			packageProductDependencies = (
+				3601AD9A296B78BD00098008 /* AsyncMux */,
+			);
 			productName = AsyncMuxDemo;
 			productReference = 36FB700C296A10F90006ACBA /* AsyncMuxDemo.app */;
 			productType = "com.apple.product-type.application";
@@ -151,7 +168,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				360EBA50296A2C50001EC729 /* README.md in Resources */,
 				36FB7017296A10FB0006ACBA /* Preview Assets.xcassets in Resources */,
 				36FB7014296A10FB0006ACBA /* Assets.xcassets in Resources */,
 			);
@@ -166,7 +182,6 @@
 			files = (
 				36FB7020296A14400006ACBA /* AppError.swift in Sources */,
 				36FB7012296A10F90006ACBA /* ContentView.swift in Sources */,
-				360EBA5A296A6A54001EC729 /* AsyncMux.swift in Sources */,
 				360EBA56296A5388001EC729 /* ErrorAlert.swift in Sources */,
 				36FB701E296A12D20006ACBA /* URLRequestEx.swift in Sources */,
 				360EBA4E296A2C10001EC729 /* WeatherAPI.swift in Sources */,
@@ -373,6 +388,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3601AD9A296B78BD00098008 /* AsyncMux */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AsyncMux;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 36FB7004296A10F90006ACBA /* Project object */;
 }

@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import AsyncMux
 
 
 struct WeatherPlace: Codable, CustomDebugStringConvertible, Hashable {
