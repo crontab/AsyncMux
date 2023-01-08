@@ -9,12 +9,6 @@ import Foundation
 import CoreLocation
 
 
-struct WeatherItem: Codable, Hashable {
-	let place: WeatherPlace
-	let weather: Weather?
-}
-
-
 struct WeatherPlace: Codable, CustomDebugStringConvertible, Hashable {
 
 	let city: String
@@ -52,23 +46,28 @@ class WeatherAPI {
 	static var placeNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Tokyo, JP"] {
 		didSet {
 			if placeNames != oldValue {
-				mux.refresh()
+				places.refresh()
+				weather.refresh()
 			}
 		}
 	}
 
 
-	static var mux = AsyncMux<[WeatherItem]> {
+	static var places = AsyncMux<[WeatherPlace]> {
 		// Geocoding requests should be performed one at a time, hence the loop
-		var result: [WeatherItem] = []
+		var result: [WeatherPlace] = []
 		for name in placeNames {
 			guard let place = try await geocoder.geocodeAddressString(name).first?.weatherPlace else {
 				throw AppError.app(code: "geocoding_error", message: "Couldn't resolve location for \(name)")
 			}
-			let weather = try await WeatherAPI.fetchCurrent(for: place.coordinate)
-			result.append(WeatherItem(place: place, weather: weather))
+			result.append(place)
 		}
 		return result
+	}.register()
+
+
+	static var weather = AsyncMuxMap<CLLocationCoordinate2D, Weather> { key in
+		try await WeatherAPI.fetchCurrent(for: key)
 	}.register()
 
 
@@ -90,7 +89,18 @@ extension CLPlacemark {
 }
 
 
-extension CLLocationCoordinate2D: Hashable {
+extension CLLocationCoordinate2D: Hashable, LosslessStringConvertible {
+
+	public init?(_ description: String) {
+		let a = description.split(separator: ",", maxSplits: 2)
+		guard a.count == 2 else { return nil }
+		guard let lat = a.first.flatMap(Double.init), let long = a.last.flatMap(Double.init) else { return nil }
+		self.init(latitude: lat, longitude: long)
+	}
+
+	public var description: String {
+		"\(latitude),\(longitude)"
+	}
 
 	public func hash(into hasher: inout Hasher) {
 		hasher.combine(latitude)

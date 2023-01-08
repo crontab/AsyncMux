@@ -14,79 +14,16 @@ public var MuxDefaultTTL: TimeInterval = 30 * 60
 
 open class AsyncMuxFetcher<T: Codable> {
 
-	public fileprivate(set) var storedValue: T?
+	public private(set) var storedValue: T?
 
-	fileprivate var completionTime: TimeInterval = 0
-	fileprivate var task: Task<T, Error>?
-	fileprivate var isDirty: Bool = false
-	fileprivate var refreshFlag: Bool = false
+	internal var isDirty: Bool = false
+	internal var refreshFlag: Bool = false
 
-	fileprivate func isExpired(ttl: TimeInterval) -> Bool {
-		Date().timeIntervalSinceReferenceDate > completionTime + ttl
-	}
+	private var task: Task<T, Error>?
+	private var completionTime: TimeInterval = 0
 
-	@discardableResult
-	public func clearMemory() -> Self {
-		completionTime = 0
-		storedValue = nil
-		return self
-	}
-}
-
-
-// MARK: - AsyncMuxCacher
-
-public typealias MuxKey = LosslessStringConvertible & Hashable
-
-public class AsyncMuxCacher<K: MuxKey, T: Codable> {
-	func load(key: K) -> T? { preconditionFailure() }
-	func save(_ result: T, key: K) { preconditionFailure() }
-	func delete(key: K) { preconditionFailure() }
-	func deleteDomain() { preconditionFailure() }
-}
-
-
-// MARK: - MuxRepositoryProtocol
-
-public protocol MuxRepositoryProtocol: AnyObject {
-	@discardableResult
-	func save() -> Self // store memory cache on disk
-
-	@discardableResult
-	func clearMemory() -> Self // free some memory; note that this will force a multiplexer to make a new fetch request next time
-
-	@discardableResult
-	func clear() -> Self // clear all memory and disk caches
-
-	var cacheKey: String { get }
-}
-
-
-// MARK: - AsyncMux
-
-open class AsyncMux<T: Codable>: AsyncMuxFetcher<T>, MuxRepositoryProtocol {
-
-	public var timeToLive: TimeInterval = MuxDefaultTTL
-	public let cacheKey: String
-
-	private let cacher: AsyncMuxCacher<String, T>?
-	private let onFetch: () async throws -> T
-
-
-	public convenience init(cacheKey: String? = nil, onFetch: @escaping () async throws -> T) {
-		self.init(cacheKey: cacheKey, cacher: JSONDiskCacher<String, T>(domain: nil), onFetch: onFetch)
-	}
-
-
-	public init(cacheKey: String? = nil, cacher: AsyncMuxCacher<String, T>?, onFetch: @escaping () async throws -> T) {
-		self.cacheKey = cacheKey ?? String(describing: T.self)
-		self.cacher = cacher
-		self.onFetch = onFetch
-	}
-
-
-	public func request() async throws -> T {
-		if !refreshFlag, let storedValue = storedValue, !isExpired(ttl: timeToLive) {
+	func request(ttl: TimeInterval, cacher: AsyncMuxCacher<T>?, key: String, onFetch: @escaping () async throws -> T) async throws -> T {
+		if !refreshFlag, let storedValue = storedValue, !isExpired(ttl: ttl) {
 			return storedValue
 		}
 
@@ -98,12 +35,10 @@ open class AsyncMux<T: Codable>: AsyncMuxFetcher<T>, MuxRepositoryProtocol {
 					return try await onFetch()
 				}
 				catch {
-					if error.isConnectivityError, let cachedValue = storedValue ?? cacher?.load(key: cacheKey) {
+					if error.isConnectivityError, let cachedValue = storedValue ?? cacher?.load(key: key) {
 						return cachedValue
 					}
-					else {
-						throw error
-					}
+					throw error
 				}
 			}
 		}
@@ -124,6 +59,75 @@ open class AsyncMux<T: Codable>: AsyncMuxFetcher<T>, MuxRepositoryProtocol {
 		}
 	}
 
+	func isExpired(ttl: TimeInterval) -> Bool {
+		Date().timeIntervalSinceReferenceDate > completionTime + ttl
+	}
+
+	func loadCachedValue<K: MuxKey>(key: K) -> T {
+		preconditionFailure()
+	}
+
+	@discardableResult
+	public func clearMemory() -> Self {
+		completionTime = 0
+		storedValue = nil
+		return self
+	}
+}
+
+
+// MARK: - AsyncMuxCacher
+
+public typealias MuxKey = LosslessStringConvertible & Hashable
+
+public class AsyncMuxCacher<T: Codable> {
+	func load(key: String) -> T? { preconditionFailure() }
+	func save(_ result: T, key: String) { preconditionFailure() }
+	func delete(key: String) { preconditionFailure() }
+	func deleteDomain() { preconditionFailure() }
+}
+
+
+// MARK: - MuxRepositoryProtocol
+
+public protocol MuxRepositoryProtocol: AnyObject {
+	@discardableResult
+	func save() -> Self // store memory cache on disk
+
+	@discardableResult
+	func clearMemory() -> Self // free some memory; note that this will force a multiplexer to make a new fetch request next time
+
+	@discardableResult
+	func clear() -> Self // clear all memory and disk caches
+
+	var cacheKey: String { get }
+	var timeToLive: TimeInterval { get set }
+}
+
+
+// MARK: - AsyncMux
+
+open class AsyncMux<T: Codable>: AsyncMuxFetcher<T>, MuxRepositoryProtocol {
+
+	public var timeToLive: TimeInterval = MuxDefaultTTL
+	public let cacheKey: String
+
+	private let cacher: AsyncMuxCacher<T>?
+	private let onFetch: () async throws -> T
+
+	public convenience init(cacheKey: String? = nil, onFetch: @escaping () async throws -> T) {
+		self.init(cacheKey: cacheKey, cacher: JSONDiskCacher<T>(domain: nil), onFetch: onFetch)
+	}
+
+	public init(cacheKey: String? = nil, cacher: AsyncMuxCacher<T>?, onFetch: @escaping () async throws -> T) {
+		self.cacheKey = cacheKey ?? String(describing: T.self)
+		self.cacher = cacher
+		self.onFetch = onFetch
+	}
+
+	public func request() async throws -> T {
+		return try await request(ttl: timeToLive, cacher: cacher, key: cacheKey, onFetch: onFetch)
+	}
 
 	@discardableResult
 	public func refresh(_ flag: Bool = true) -> Self {
@@ -131,13 +135,11 @@ open class AsyncMux<T: Codable>: AsyncMuxFetcher<T>, MuxRepositoryProtocol {
 		return self
 	}
 
-
 	@discardableResult
 	public func clear() -> Self {
 		cacher?.delete(key: cacheKey)
 		return clearMemory()
 	}
-
 
 	@discardableResult
 	public func save() -> Self {
@@ -148,27 +150,108 @@ open class AsyncMux<T: Codable>: AsyncMuxFetcher<T>, MuxRepositoryProtocol {
 		return self
 	}
 
+	open func useCachedResultOn(error: Error) -> Bool {
+		error.isConnectivityError
+	}
+}
+
+
+// MARK: - AsyncMuxMap
+
+open class AsyncMuxMap<K: MuxKey, T: Codable>: MuxRepositoryProtocol {
+
+	public var timeToLive: TimeInterval = MuxDefaultTTL
+	public let cacheKey: String
+
+	private let cacher: AsyncMuxCacher<T>?
+	private let onKeyFetch: (K) async throws -> T
+	private var fetcherMap: [String: AsyncMuxFetcher<T>] = [:]
+
+	public convenience init(cacheKey: String? = nil, onKeyFetch: @escaping (K) async throws -> T) {
+		let cacheKey = cacheKey ?? String(describing: T.self)
+		self.init(cacheKey: cacheKey, cacher: JSONDiskCacher<T>(domain: cacheKey), onKeyFetch: onKeyFetch)
+	}
+
+	public init(cacheKey: String? = nil, cacher: AsyncMuxCacher<T>?, onKeyFetch: @escaping (K) async throws -> T) {
+		self.cacheKey = cacheKey ?? String(describing: T.self)
+		self.cacher = cacher
+		self.onKeyFetch = onKeyFetch
+	}
+
+	public func request(key: K) async throws -> T {
+		let fetcher = fetcherForKey(key)
+		return try await fetcher.request(ttl: timeToLive, cacher: cacher, key: String(key)) { [self] in
+			try await onKeyFetch(key)
+		}
+	}
 
 	@discardableResult
-	public func setTimeToLive(_ ttl: TimeInterval) -> Self {
-		timeToLive = ttl
+	public func refresh(_ flag: Bool = true, key: K) -> Self {
+		if flag {
+			fetcherMap[String(key)]?.refreshFlag = true
+		}
+		return self
+	}
+
+	@discardableResult
+	public func refresh(_ flag: Bool = true) -> Self {
+		if flag {
+			fetcherMap.values.forEach {
+				$0.refreshFlag = true
+			}
+		}
+		return self
+	}
+
+	@discardableResult
+	public func clearMemory(key: K) -> Self {
+		fetcherMap.removeValue(forKey: String(key))
+		return self
+	}
+
+	@discardableResult
+	public func clearMemory() -> Self {
+		fetcherMap = [:]
+		return self
+	}
+
+	@discardableResult
+	public func clear(key: K) -> Self {
+		cacher?.delete(key: String(key))
+		return clearMemory(key: key)
+	}
+
+	@discardableResult
+	public func clear() -> Self {
+		cacher?.deleteDomain()
+		return clearMemory()
+	}
+
+	@discardableResult
+	public func save() -> Self {
+		fetcherMap.forEach { key, fetcher in
+			if fetcher.isDirty, let storedValue = fetcher.storedValue {
+				cacher?.save(storedValue, key: String(key))
+				fetcher.isDirty = false
+			}
+		}
 		return self
 	}
 
 
-	@discardableResult
-	public func register() -> Self {
-		MuxRepository.register(mux: self)
-		return self
+	open class func useCachedResultOn(error: Error) -> Bool {
+		error.isConnectivityError
 	}
 
 
-	public func unregister() {
-		MuxRepository.unregister(mux: self)
+	private func fetcherForKey(_ key: K) -> AsyncMuxFetcher<T> {
+		var fetcher = fetcherMap[String(key)]
+		if fetcher == nil {
+			fetcher = AsyncMuxFetcher<T>()
+			fetcherMap[String(key)] = fetcher
+		}
+		return fetcher!
 	}
-
-
-	open func useCachedResultOn(error: Error) -> Bool { error.isConnectivityError }
 }
 
 
@@ -190,21 +273,41 @@ public class MuxRepository {
 		repo.values.forEach { $0.clearMemory() }
 	}
 
-	fileprivate static func register(mux: MuxRepositoryProtocol) {
+	static func register(mux: MuxRepositoryProtocol) {
 		let id = mux.cacheKey
 		precondition(repo[id] == nil, "MuxRepository: duplicate registration (Cache key: \(id))")
 		repo[id] = mux
 	}
 
-	fileprivate static func unregister(mux: MuxRepositoryProtocol) {
+	static func unregister(mux: MuxRepositoryProtocol) {
 		repo.removeValue(forKey: mux.cacheKey)
+	}
+}
+
+
+public extension MuxRepositoryProtocol {
+
+	@discardableResult
+	func register() -> Self {
+		MuxRepository.register(mux: self)
+		return self
+	}
+
+	func unregister() {
+		MuxRepository.unregister(mux: self)
+	}
+
+	@discardableResult
+	func setTimeToLive(_ ttl: TimeInterval) -> Self {
+		timeToLive = ttl
+		return self
 	}
 }
 
 
 // MARK: - JSONDiskCacher
 
-public final class JSONDiskCacher<K: MuxKey, T: Codable>: AsyncMuxCacher<K, T> {
+public final class JSONDiskCacher<T: Codable>: AsyncMuxCacher<T> {
 
 	private let domain: String?
 
@@ -212,15 +315,15 @@ public final class JSONDiskCacher<K: MuxKey, T: Codable>: AsyncMuxCacher<K, T> {
 		self.domain = domain
 	}
 
-	public override func load(key: K) -> T? {
+	public override func load(key: String) -> T? {
 		return try? JSONDecoder().decode(T.self, from: Data(contentsOf: cacheFileURL(key: key, create: false)))
 	}
 
-	public override func save(_ result: T, key: K) {
+	public override func save(_ result: T, key: String) {
 		try! JSONEncoder().encode(result).write(to: cacheFileURL(key: key, create: true), options: .atomic)
 	}
 
-	public override func delete(key: K) {
+	public override func delete(key: String) {
 		try? FileManager.default.removeItem(at: cacheFileURL(key: key, create: false))
 	}
 
@@ -231,7 +334,7 @@ public final class JSONDiskCacher<K: MuxKey, T: Codable>: AsyncMuxCacher<K, T> {
 		try? FileManager.default.removeItem(at: cacheDirURL(create: false))
 	}
 
-	private func cacheFileURL(key: K, create: Bool) -> URL {
+	private func cacheFileURL(key: String, create: Bool) -> URL {
 		return cacheDirURL(create: create).appendingPathComponent(key.description).appendingPathExtension("json")
 	}
 

@@ -10,16 +10,21 @@ import SwiftUI
 
 struct ContentView: View {
 
-	@State var items: [WeatherItem] = []
+	struct Item: Hashable {
+		var place: WeatherPlace
+		var weather: Weather?
+	}
+
+	@State var items: [Item] = []
 	@State var isLoading: Bool = false
 
 
 	var body: some View {
 		list()
-			.serverTask {
+			.serverTask(withAlert: true) {
 				try await reload(showIndicator: true, refresh: false)
 			}
-			.refreshable {
+			.serverRefreshable(withAlert: false) {
 				try? await reload(showIndicator: false, refresh: true)
 			}
 	}
@@ -44,13 +49,20 @@ struct ContentView: View {
 		}
 	}
 
-
 	private func reload(showIndicator: Bool, refresh: Bool) async throws {
 		isLoading = showIndicator
 		do {
-			items = try await WeatherAPI.mux
+			items = try await WeatherAPI.places
 				.refresh(refresh)
 				.request()
+				.map { Item(place: $0, weather: nil) }
+			for i in items.indices {
+				Task {
+					items[i].weather = try await WeatherAPI.weather
+						.refresh(refresh)
+						.request(key: items[i].place.coordinate)
+				}
+			}
 		}
 		catch {
 			isLoading = false
