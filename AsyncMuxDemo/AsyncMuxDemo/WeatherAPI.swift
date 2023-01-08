@@ -49,13 +49,15 @@ class WeatherAPI {
 
 	static func fetch(for placeNames: [String]) async throws -> [WeatherItem] {
 		// Geocoding requests should be performed one at a time, hence:
-		return try await placeNames.asyncMap { name in
+		var result: [WeatherItem] = []
+		for name in placeNames {
 			guard let place = try await geocoder.geocodeAddressString(name).first?.weatherPlace else {
 				throw AppError.app(code: "geocoding_error", message: "Couldn't resolve location for \(name)")
 			}
 			let weather = try await WeatherAPI.fetchCurrent(for: place.coordinate)
-			return WeatherItem(place: place, weather: weather)
+			result.append(WeatherItem(place: place, weather: weather))
 		}
+		return result
 	}
 
 
@@ -68,9 +70,8 @@ class WeatherAPI {
 
 extension CLPlacemark {
 
-	var weatherPlace: WeatherPlace? {
-		guard let name = locality ?? name, let isoCountryCode, let location else { return nil }
-		return WeatherPlace(city: name, countryCode: isoCountryCode, coordinate: location.coordinate)
+	var weatherPlace: WeatherPlace {
+		WeatherPlace(city: locality ?? name ?? "-", countryCode: isoCountryCode ?? "-", coordinate: location?.coordinate ?? .init())
 	}
 }
 
