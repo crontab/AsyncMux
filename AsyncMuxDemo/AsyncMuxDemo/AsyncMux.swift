@@ -12,7 +12,6 @@ public var MuxDefaultTTL: TimeInterval = 30 * 60
 
 // MARK: - AsyncMuxFetcher
 
-
 open class AsyncMuxFetcher<T: Codable> {
 
 	public fileprivate(set) var storedValue: T?
@@ -35,7 +34,7 @@ open class AsyncMuxFetcher<T: Codable> {
 }
 
 
-// MARK: - Abstract Cacher
+// MARK: - AsyncMuxCacher
 
 public typealias MuxKey = LosslessStringConvertible & Hashable
 
@@ -47,9 +46,25 @@ public class AsyncMuxCacher<K: MuxKey, T: Codable> {
 }
 
 
+// MARK: - MuxRepositoryProtocol
+
+public protocol MuxRepositoryProtocol: AnyObject {
+	@discardableResult
+	func save() -> Self // store memory cache on disk
+
+	@discardableResult
+	func clearMemory() -> Self // free some memory; note that this will force a multiplexer to make a new fetch request next time
+
+	@discardableResult
+	func clear() -> Self // clear all memory and disk caches
+
+	var cacheKey: String { get }
+}
+
+
 // MARK: - AsyncMux
 
-open class AsyncMux<T: Codable>: AsyncMuxFetcher<T> {
+open class AsyncMux<T: Codable>: AsyncMuxFetcher<T>, MuxRepositoryProtocol {
 
 	public var timeToLive: TimeInterval = MuxDefaultTTL
 	public let cacheKey: String
@@ -125,7 +140,7 @@ open class AsyncMux<T: Codable>: AsyncMuxFetcher<T> {
 
 
 	@discardableResult
-	public func flush() -> Self {
+	public func save() -> Self {
 		if isDirty, let storedValue = storedValue {
 			cacher?.save(storedValue, key: cacheKey)
 			isDirty = false
@@ -141,7 +156,49 @@ open class AsyncMux<T: Codable>: AsyncMuxFetcher<T> {
 	}
 
 
+	@discardableResult
+	public func register() -> Self {
+		MuxRepository.register(mux: self)
+		return self
+	}
+
+
+	public func unregister() {
+		MuxRepository.unregister(mux: self)
+	}
+
+
 	open func useCachedResultOn(error: Error) -> Bool { error.isConnectivityError }
+}
+
+
+// MARK: - MuxRepository
+
+public class MuxRepository {
+
+	private static var repo: [String: MuxRepositoryProtocol] = [:]
+
+	public static func clearAll() {
+		repo.values.forEach { $0.clear() }
+	}
+
+	public static func saveAll() {
+		repo.values.forEach { $0.save() }
+	}
+
+	public static func clearMemory() {
+		repo.values.forEach { $0.clearMemory() }
+	}
+
+	fileprivate static func register(mux: MuxRepositoryProtocol) {
+		let id = mux.cacheKey
+		precondition(repo[id] == nil, "MuxRepository: duplicate registration (Cache key: \(id))")
+		repo[id] = mux
+	}
+
+	fileprivate static func unregister(mux: MuxRepositoryProtocol) {
+		repo.removeValue(forKey: mux.cacheKey)
+	}
 }
 
 

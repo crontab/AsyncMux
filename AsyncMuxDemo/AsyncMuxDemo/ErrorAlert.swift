@@ -16,7 +16,7 @@ extension View {
 				error.wrappedValue = nil
 			}
 		} message: {
-			Text((value as? LocalizedError)?.localizedDescription ?? value.debugDescription)
+			Text(value?.localizedDescription ?? "Unknown error")
 		}
 	}
 }

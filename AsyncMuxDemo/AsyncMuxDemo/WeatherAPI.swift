@@ -69,7 +69,7 @@ class WeatherAPI {
 			result.append(WeatherItem(place: place, weather: weather))
 		}
 		return result
-	}
+	}.register()
 
 
 	private static let geocoder = CLGeocoder()
