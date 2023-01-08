@@ -35,18 +35,37 @@ open class AsyncMuxFetcher<T: Codable> {
 }
 
 
+// MARK: - Abstract Cacher
+
+public typealias MuxKey = LosslessStringConvertible & Hashable
+
+public class AsyncMuxCacher<K: MuxKey, T: Codable> {
+	func load(key: K) -> T? { preconditionFailure() }
+	func save(_ result: T, key: K) { preconditionFailure() }
+	func delete(key: K) { preconditionFailure() }
+	func deleteDomain() { preconditionFailure() }
+}
+
+
 // MARK: - AsyncMux
 
 open class AsyncMux<T: Codable>: AsyncMuxFetcher<T> {
 
 	public var timeToLive: TimeInterval = MuxDefaultTTL
+	public let cacheKey: String
 
+	private let cacher: AsyncMuxCacher<String, T>?
 	private let onFetch: () async throws -> T
-	private let cacheID: String
 
 
-	init(cacheID: String? = nil, onFetch: @escaping () async throws -> T) {
-		self.cacheID = cacheID ?? String(describing: T.self)
+	public convenience init(cacheKey: String? = nil, onFetch: @escaping () async throws -> T) {
+		self.init(cacheKey: cacheKey, cacher: JSONDiskCacher<String, T>(domain: nil), onFetch: onFetch)
+	}
+
+
+	public init(cacheKey: String? = nil, cacher: AsyncMuxCacher<String, T>?, onFetch: @escaping () async throws -> T) {
+		self.cacheKey = cacheKey ?? String(describing: T.self)
+		self.cacher = cacher
 		self.onFetch = onFetch
 	}
 
@@ -64,7 +83,7 @@ open class AsyncMux<T: Codable>: AsyncMuxFetcher<T> {
 					return try await onFetch()
 				}
 				catch {
-					if error.isConnectivityError, let cachedValue = storedValue {
+					if error.isConnectivityError, let cachedValue = storedValue ?? cacher?.load(key: cacheKey) {
 						return cachedValue
 					}
 					else {
@@ -98,7 +117,71 @@ open class AsyncMux<T: Codable>: AsyncMuxFetcher<T> {
 	}
 
 
+	@discardableResult
+	public func clear() -> Self {
+		cacher?.delete(key: cacheKey)
+		return clearMemory()
+	}
+
+
+	@discardableResult
+	public func flush() -> Self {
+		if isDirty, let storedValue = storedValue {
+			cacher?.save(storedValue, key: cacheKey)
+			isDirty = false
+		}
+		return self
+	}
+
+
+	@discardableResult
+	public func setTimeToLive(_ ttl: TimeInterval) -> Self {
+		timeToLive = ttl
+		return self
+	}
+
+
 	open func useCachedResultOn(error: Error) -> Bool { error.isConnectivityError }
+}
+
+
+// MARK: - JSONDiskCacher
+
+public final class JSONDiskCacher<K: MuxKey, T: Codable>: AsyncMuxCacher<K, T> {
+
+	private let domain: String?
+
+	public required init(domain: String?) {
+		self.domain = domain
+	}
+
+	public override func load(key: K) -> T? {
+		return try? JSONDecoder().decode(T.self, from: Data(contentsOf: cacheFileURL(key: key, create: false)))
+	}
+
+	public override func save(_ result: T, key: K) {
+		try! JSONEncoder().encode(result).write(to: cacheFileURL(key: key, create: true), options: .atomic)
+	}
+
+	public override func delete(key: K) {
+		try? FileManager.default.removeItem(at: cacheFileURL(key: key, create: false))
+	}
+
+	public override func deleteDomain() {
+		guard domain != nil else {
+			preconditionFailure()
+		}
+		try? FileManager.default.removeItem(at: cacheDirURL(create: false))
+	}
+
+	private func cacheFileURL(key: K, create: Bool) -> URL {
+		return cacheDirURL(create: create).appendingPathComponent(key.description).appendingPathExtension("json")
+	}
+
+	private func cacheDirURL(create: Bool) -> URL {
+		let dir = "AsyncMux/" + (domain ?? "")
+		return FileManager.cachesDirectory(subDirectory: dir, create: create)
+	}
 }
 
 
@@ -111,5 +194,29 @@ public extension Error {
 			return [NSURLErrorNotConnectedToInternet, NSURLErrorNetworkConnectionLost, NSURLErrorCannotConnectToHost].contains((self as NSError).code)
 		}
 		return false
+	}
+}
+
+
+public extension FileManager {
+
+	static func cachesDirectory(subDirectory: String, create: Bool = false) -> URL {
+		standardDirectory(.cachesDirectory, subDirectory: subDirectory, create: create)
+	}
+
+	static func documentDirectory(subDirectory: String, create: Bool = false) -> URL {
+		standardDirectory(.documentDirectory, subDirectory: subDirectory, create: create)
+	}
+
+	static func libraryDirectory(subDirectory: String, create: Bool = false) -> URL {
+		standardDirectory(.libraryDirectory, subDirectory: subDirectory, create: create)
+	}
+
+	private static func standardDirectory(_ type: SearchPathDirectory, subDirectory: String, create: Bool = false) -> URL {
+		let result = `default`.urls(for: type, in: .userDomainMask).first!.appendingPathComponent(subDirectory)
+		if create && !`default`.fileExists(atPath: result.path) {
+			try! `default`.createDirectory(at: result, withIntermediateDirectories: true, attributes: nil)
+		}
+		return result
 	}
 }
