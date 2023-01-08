@@ -41,6 +41,7 @@ struct Weather: Codable, Hashable {
 }
 
 
+@MainActor
 class WeatherAPI {
 
 	static var placeNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Tokyo, JP"] {

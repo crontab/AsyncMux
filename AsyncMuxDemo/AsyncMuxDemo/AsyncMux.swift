@@ -12,6 +12,7 @@ public var MuxDefaultTTL: TimeInterval = 30 * 60
 
 // MARK: - AsyncMuxFetcher
 
+@MainActor
 open class AsyncMuxFetcher<T: Codable> {
 
 	public private(set) var storedValue: T?
@@ -90,6 +91,7 @@ public class AsyncMuxCacher<T: Codable> {
 
 // MARK: - MuxRepositoryProtocol
 
+@MainActor
 public protocol MuxRepositoryProtocol: AnyObject {
 	@discardableResult
 	func save() -> Self // store memory cache on disk
@@ -107,6 +109,7 @@ public protocol MuxRepositoryProtocol: AnyObject {
 
 // MARK: - AsyncMux
 
+@MainActor
 open class AsyncMux<T: Codable>: AsyncMuxFetcher<T>, MuxRepositoryProtocol {
 
 	public var timeToLive: TimeInterval = MuxDefaultTTL
@@ -158,6 +161,7 @@ open class AsyncMux<T: Codable>: AsyncMuxFetcher<T>, MuxRepositoryProtocol {
 
 // MARK: - AsyncMuxMap
 
+@MainActor
 open class AsyncMuxMap<K: MuxKey, T: Codable>: MuxRepositoryProtocol {
 
 	public var timeToLive: TimeInterval = MuxDefaultTTL
@@ -257,6 +261,7 @@ open class AsyncMuxMap<K: MuxKey, T: Codable>: MuxRepositoryProtocol {
 
 // MARK: - MuxRepository
 
+@MainActor
 public class MuxRepository {
 
 	private static var repo: [String: MuxRepositoryProtocol] = [:]
