@@ -11,22 +11,13 @@ import AsyncMux
 
 
 struct WeatherPlace: Codable, Hashable {
-
 	let city: String
 	let countryCode: String
-	let latitude: Double
-	let longitude: Double
+	let lat: String
+	let lon: String
 
-	var description: String {
-		"\(city), \(countryCode) [\(latitude), \(longitude)]"
-	}
-
-	var debugDescription: String {
-		description
-	}
-
-	var coordinate: CLLocationCoordinate2D {
-		.init(latitude: latitude, longitude: longitude)
+	var key: String {
+		"\(lat),\(lon)"
 	}
 }
 
@@ -77,8 +68,11 @@ class WeatherAPI {
 	}.register()
 
 
-	static var weather = AsyncMuxMap<CLLocationCoordinate2D, Weather> { key in
-		try await WeatherAPI.fetchCurrent(for: key)
+	static var weather = AsyncMuxMap<String, Weather> { key in
+		guard let coordinate = CLLocationCoordinate2D(string: key) else {
+			throw AppError.unknown
+		}
+		return try await WeatherAPI.fetchCurrent(for: coordinate)
 	}.register()
 
 
@@ -92,33 +86,20 @@ class WeatherAPI {
 }
 
 
-extension CLPlacemark {
+private extension CLPlacemark {
 
 	var weatherPlace: WeatherPlace {
-		WeatherPlace(city: locality ?? name ?? "-", countryCode: isoCountryCode ?? "-", latitude: location?.coordinate.latitude ?? 0, longitude: location?.coordinate.longitude ?? 0)
+		WeatherPlace(city: locality ?? name ?? "-", countryCode: isoCountryCode ?? "-", lat: String(location?.coordinate.latitude ?? 0), lon: String(location?.coordinate.longitude ?? 0))
 	}
 }
 
 
-extension CLLocationCoordinate2D: Hashable, LosslessStringConvertible {
+private extension CLLocationCoordinate2D {
 
-	public init?(_ description: String) {
-		let a = description.split(separator: ",", maxSplits: 2)
+	init?(string: String) {
+		let a = string.split(separator: ",")
 		guard a.count == 2 else { return nil }
-		guard let lat = a.first.flatMap(Double.init), let long = a.last.flatMap(Double.init) else { return nil }
-		self.init(latitude: lat, longitude: long)
-	}
-
-	public var description: String {
-		"\(latitude),\(longitude)"
-	}
-
-	public func hash(into hasher: inout Hasher) {
-		hasher.combine(latitude)
-		hasher.combine(longitude)
-	}
-
-	public static func == (a: CLLocationCoordinate2D, b: CLLocationCoordinate2D) -> Bool {
-		a.latitude == b.latitude && a.longitude == b.longitude
+		guard let lat = Double(a[0]), let lon = Double(a[1]) else { return nil }
+		self.init(latitude: lat, longitude: lon)
 	}
 }

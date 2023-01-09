@@ -60,7 +60,7 @@ struct ContentView: View {
 				Task {
 					items[i].weather = try await WeatherAPI.weather
 						.refresh(refresh)
-						.request(key: items[i].place.coordinate)
+						.request(key: items[i].place.key)
 				}
 			}
 		}
@@ -76,8 +76,8 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
 	static var previews: some View {
 		ContentView(items: [
-			.init(place: .init(city: "London", countryCode: "GB", latitude: 51.51, longitude: -0.13), weather: .init(currentWeather: .init(temperature: 8.1, weathercode: 2))),
-			.init(place: .init(city: "Paris", countryCode: "FR", latitude: 48.84, longitude: 2.36), weather: .init(currentWeather: .init(temperature: 10.2, weathercode: 3)))
+			.init(place: .init(city: "London", countryCode: "GB", lat: "51.51", lon: "-0.13"), weather: .init(currentWeather: .init(temperature: 8.1, weathercode: 2))),
+			.init(place: .init(city: "Paris", countryCode: "FR", lat: "48.84", lon: "2.36"), weather: .init(currentWeather: .init(temperature: 10.2, weathercode: 3)))
 		])
 	}
 }
