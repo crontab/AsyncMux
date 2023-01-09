@@ -41,7 +41,7 @@ struct ContentView: View {
 					HStack {
 						Text("\(item.place.city), \(item.place.countryCode)")
 						Spacer()
-						Text(item.weather.map { "\(Int($0.currentWeather.temperature))ºC" } ?? "-")
+						Text(item.weather.map { "\(Int(round($0.currentWeather.temperature)))ºC" } ?? "-")
 					}
 				}
 			}

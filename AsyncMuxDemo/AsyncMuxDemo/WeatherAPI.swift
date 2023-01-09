@@ -10,7 +10,7 @@ import CoreLocation
 import AsyncMux
 
 
-struct WeatherPlace: Codable, CustomDebugStringConvertible, Hashable {
+struct WeatherPlace: Codable, Hashable {
 
 	let city: String
 	let countryCode: String
@@ -59,10 +59,19 @@ class WeatherAPI {
 		// Geocoding requests should be performed one at a time, hence the loop
 		var result: [WeatherPlace] = []
 		for name in placeNames {
-			guard let place = try await geocoder.geocodeAddressString(name).first?.weatherPlace else {
-				throw AppError.app(code: "geocoding_error", message: "Couldn't resolve location for \(name)")
+			do {
+				guard let place = try await geocoder.geocodeAddressString(name).first?.weatherPlace else {
+					throw AppError.app(code: "geocoding_error", message: "Couldn't resolve location for \(name)")
+				}
+				result.append(place)
 			}
-			result.append(place)
+			catch {
+				// When there's no connection CoreLocation returns the below error; we convert it to a silencable one
+				if (error as NSError).domain == kCLErrorDomain, (error as NSError).code == 2 {
+					throw SilencableError(wrapped: error)
+				}
+				throw error
+			}
 		}
 		return result
 	}.register()

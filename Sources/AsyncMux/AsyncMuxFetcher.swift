@@ -34,7 +34,7 @@ open class _AsyncMuxFetcher<T: Codable> {
 					return try await onFetch()
 				}
 				catch {
-					if error.isConnectivityError, let cachedValue = storedValue ?? cacher?.load(key: key) {
+					if error.isSilencable, let cachedValue = storedValue ?? cacher?.load(key: key) {
 						return cachedValue
 					}
 					throw error

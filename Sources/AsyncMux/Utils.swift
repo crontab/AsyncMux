@@ -7,11 +7,27 @@
 import Foundation
 
 
+public struct SilencableError: LocalizedError {
+	let wrapped: Error?
+
+	public init(wrapped: Error?) {
+		self.wrapped = wrapped
+	}
+
+	public var errorDescription: String? {
+		wrapped?.localizedDescription ?? "SilencableError"
+	}
+}
+
+
 public extension Error {
 
-	var isConnectivityError: Bool {
+	var isSilencable: Bool {
 		if (self as NSError).domain == NSURLErrorDomain {
 			return [NSURLErrorNotConnectedToInternet, NSURLErrorNetworkConnectionLost, NSURLErrorCannotConnectToHost].contains((self as NSError).code)
+		}
+		if self is SilencableError {
+			return true
 		}
 		return false
 	}
