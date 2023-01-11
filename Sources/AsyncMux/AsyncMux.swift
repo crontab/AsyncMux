@@ -13,14 +13,14 @@ open class AsyncMux<T: Codable>: _AsyncMuxFetcher<T>, MuxRepositoryProtocol {
 	public var timeToLive: TimeInterval = MuxDefaultTTL
 	public let cacheKey: String
 
-	private let cacher: AsyncMuxCacher<T>?
+	private let cacher: any AsyncMuxCacher<T>
 	private let onFetch: () async throws -> T
 
 	public convenience init(cacheKey: String? = nil, onFetch: @escaping () async throws -> T) {
 		self.init(cacheKey: cacheKey, cacher: JSONDiskCacher<T>(domain: nil), onFetch: onFetch)
 	}
 
-	public init(cacheKey: String? = nil, cacher: AsyncMuxCacher<T>?, onFetch: @escaping () async throws -> T) {
+	public init(cacheKey: String? = nil, cacher: some AsyncMuxCacher<T>, onFetch: @escaping () async throws -> T) {
 		self.cacheKey = cacheKey ?? String(describing: T.self)
 		self.cacher = cacher
 		self.onFetch = onFetch
@@ -38,14 +38,14 @@ open class AsyncMux<T: Codable>: _AsyncMuxFetcher<T>, MuxRepositoryProtocol {
 
 	@discardableResult
 	public func clear() -> Self {
-		cacher?.delete(key: cacheKey)
+		cacher.delete(key: cacheKey)
 		return clearMemory()
 	}
 
 	@discardableResult
 	public func save() -> Self {
 		if isDirty, let storedValue = storedValue {
-			cacher?.save(storedValue, key: cacheKey)
+			cacher.save(storedValue, key: cacheKey)
 			isDirty = false
 		}
 		return self

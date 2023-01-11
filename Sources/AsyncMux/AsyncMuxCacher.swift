@@ -7,35 +7,40 @@
 import Foundation
 
 
-public class AsyncMuxCacher<T: Codable> {
-	func load(key: String) -> T? { preconditionFailure() }
-	func save(_ result: T, key: String) { preconditionFailure() }
-	func delete(key: String) { preconditionFailure() }
-	func deleteDomain() { preconditionFailure() }
+public protocol AsyncMuxCacher<Object> {
+	associatedtype Object = Codable
+	func load(key: String) -> Object?
+	func save(_ result: Object, key: String)
+	func delete(key: String)
+	func deleteDomain()
 }
 
 
-public final class JSONDiskCacher<T: Codable>: AsyncMuxCacher<T> {
+public struct NullCacher<Object: Codable>: AsyncMuxCacher {
+	public func load(key: String) -> Object? { nil }
+	public func save(_ result: Object, key: String) { }
+	public func delete(key: String) { }
+	public func deleteDomain() { }
+}
 
-	private let domain: String?
 
-	public required init(domain: String?) {
-		self.domain = domain
+public struct JSONDiskCacher<Object: Codable>: AsyncMuxCacher {
+
+	let domain: String?
+
+	public func load(key: String) -> Object? {
+		return try? JSONDecoder().decode(Object.self, from: Data(contentsOf: cacheFileURL(key: key, create: false)))
 	}
 
-	public override func load(key: String) -> T? {
-		return try? JSONDecoder().decode(T.self, from: Data(contentsOf: cacheFileURL(key: key, create: false)))
-	}
-
-	public override func save(_ result: T, key: String) {
+	public func save(_ result: Object, key: String) {
 		try! JSONEncoder().encode(result).write(to: cacheFileURL(key: key, create: true), options: .atomic)
 	}
 
-	public override func delete(key: String) {
+	public func delete(key: String) {
 		try? FileManager.default.removeItem(at: cacheFileURL(key: key, create: false))
 	}
 
-	public override func deleteDomain() {
+	public func deleteDomain() {
 		precondition(domain != nil)
 		try? FileManager.default.removeItem(at: cacheDirURL(create: false))
 	}

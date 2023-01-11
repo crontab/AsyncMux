@@ -16,7 +16,7 @@ open class AsyncMuxMap<K: MuxKey, T: Codable>: MuxRepositoryProtocol {
 	public var timeToLive: TimeInterval = MuxDefaultTTL
 	public let cacheKey: String
 
-	private let cacher: AsyncMuxCacher<T>?
+	private let cacher: any AsyncMuxCacher<T>
 	private let onKeyFetch: (K) async throws -> T
 	private var fetcherMap: [String: _AsyncMuxFetcher<T>] = [:]
 
@@ -25,7 +25,7 @@ open class AsyncMuxMap<K: MuxKey, T: Codable>: MuxRepositoryProtocol {
 		self.init(cacheKey: cacheKey, cacher: JSONDiskCacher<T>(domain: cacheKey), onKeyFetch: onKeyFetch)
 	}
 
-	public init(cacheKey: String? = nil, cacher: AsyncMuxCacher<T>?, onKeyFetch: @escaping (K) async throws -> T) {
+	public init(cacheKey: String? = nil, cacher: some AsyncMuxCacher<T>, onKeyFetch: @escaping (K) async throws -> T) {
 		self.cacheKey = cacheKey ?? String(describing: T.self)
 		self.cacher = cacher
 		self.onKeyFetch = onKeyFetch
@@ -70,13 +70,13 @@ open class AsyncMuxMap<K: MuxKey, T: Codable>: MuxRepositoryProtocol {
 
 	@discardableResult
 	public func clear(key: K) -> Self {
-		cacher?.delete(key: String(key))
+		cacher.delete(key: String(key))
 		return clearMemory(key: key)
 	}
 
 	@discardableResult
 	public func clear() -> Self {
-		cacher?.deleteDomain()
+		cacher.deleteDomain()
 		return clearMemory()
 	}
 
@@ -84,7 +84,7 @@ open class AsyncMuxMap<K: MuxKey, T: Codable>: MuxRepositoryProtocol {
 	public func save() -> Self {
 		fetcherMap.forEach { key, fetcher in
 			if fetcher.isDirty, let storedValue = fetcher.storedValue {
-				cacher?.save(storedValue, key: String(key))
+				cacher.save(storedValue, key: String(key))
 				fetcher.isDirty = false
 			}
 		}
