@@ -24,8 +24,14 @@ open class _AsyncMuxFetcher<T: Codable> {
 	private var completionTime: TimeInterval = 0
 
 	func request(ttl: TimeInterval, cacher: some AsyncMuxCacher<T>, key: String, onFetch: @escaping () async throws -> T) async throws -> T {
-		if !refreshFlag, let storedValue = storedValue, !isExpired(ttl: ttl) {
-			return storedValue
+		if !refreshFlag, !isExpired(ttl: ttl) {
+			if let storedValue {
+				return storedValue
+			}
+			else if let cachedValue = cacher.load(key: key) {
+				storedValue = cachedValue
+				return cachedValue
+			}
 		}
 
 		refreshFlag = false
@@ -71,5 +77,3 @@ open class _AsyncMuxFetcher<T: Codable> {
 		return self
 	}
 }
-
-

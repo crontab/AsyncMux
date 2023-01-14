@@ -10,7 +10,7 @@ import Foundation
 
 
 @MainActor
-public protocol MuxRepositoryProtocol: AnyObject {
+public protocol MuxRepositoryProtocol {
 	@discardableResult
 	func save() -> Self // store memory cache on disk
 
@@ -68,7 +68,7 @@ public extension MuxRepositoryProtocol {
 	}
 
 	@discardableResult
-	func setTimeToLive(_ ttl: TimeInterval) -> Self {
+	mutating func setTimeToLive(_ ttl: TimeInterval) -> Self {
 		timeToLive = ttl
 		return self
 	}
