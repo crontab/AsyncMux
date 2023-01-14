@@ -46,6 +46,7 @@ struct ContentView: View {
 				}
 			}
 			.listStyle(.inset)
+			.font(.title2)
 		}
 	}
 

@@ -1,7 +1,9 @@
 //
 //  AsyncMux.swift
+//  AsyncMux
 //
 //  Created by Hovik Melikyan on 08/01/2023.
+//  Copyright © 2023 Hovik Melikyan. All rights reserved.
 //
 
 import Foundation
