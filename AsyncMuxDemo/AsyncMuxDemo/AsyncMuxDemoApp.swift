@@ -12,20 +12,23 @@ import AsyncMux
 struct AsyncMuxDemoApp: App {
 	@Environment(\.scenePhase) var scenePhase
 
+	init() {
+	}
+
 	var body: some Scene {
 		scene()
-		.onChange(of: scenePhase) { newPhase in
-			switch newPhase {
-				case .background:
-					MuxRepository.saveAll()
-				case .inactive:
-					break
-				case .active:
-					break
-				@unknown default:
-					break
+			.onChange(of: scenePhase) { newPhase in
+				switch newPhase {
+					case .background:
+						MuxRepository.saveAll()
+					case .inactive:
+						break
+					case .active:
+						break
+					@unknown default:
+						break
+				}
 			}
-		}
 	}
 
 	func scene() -> some Scene {

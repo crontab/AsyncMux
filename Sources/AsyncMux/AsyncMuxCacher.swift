@@ -53,6 +53,6 @@ public struct JSONDiskCacher<Object: Codable>: AsyncMuxCacher {
 
 	private func cacheDirURL(create: Bool) -> URL {
 		let dir = "AsyncMux/" + (domain ?? "")
-		return FileManager.cachesDirectory(subDirectory: dir, create: create)
+		return FileManager.default.cachesDirectory(subDirectory: dir, create: create)
 	}
 }

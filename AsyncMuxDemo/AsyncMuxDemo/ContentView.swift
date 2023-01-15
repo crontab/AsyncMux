@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AsyncMux
 
 
 struct ContentView: View {
@@ -17,23 +18,30 @@ struct ContentView: View {
 
 	@State var items: [Item] = []
 	@State var isLoading: Bool = false
-
+	@State var backgroundImage: UIImage?
 
 	var body: some View {
-		list()
-			.serverTask(withAlert: true) {
-				try await reload(showIndicator: true, refresh: false)
-			}
-			.serverRefreshable(withAlert: false) {
-				try? await reload(showIndicator: false, refresh: true)
-			}
+		ZStack {
+			backgroundImageView()
+			listView()
+		}
+		.preferredColorScheme(.dark)
+
+		.serverTask(withAlert: true) {
+			loadBackroundImage()
+			try await reload(showIndicator: true, refresh: false)
+		}
+
+		.serverRefreshable(withAlert: false) {
+			try? await reload(showIndicator: false, refresh: true)
+		}
 	}
 
-
 	@ViewBuilder
-	private func list() -> some View {
+	private func listView() -> some View {
 		if isLoading, items.isEmpty {
-			ProgressView()
+			Color.clear
+				.overlay(ProgressView())
 		}
 		else {
 			List {
@@ -43,10 +51,28 @@ struct ContentView: View {
 						Spacer()
 						Text(item.weather.map { "\(Int(round($0.currentWeather.temperature)))ºC" } ?? "-")
 					}
+					.listRowBackground(Color.clear)
 				}
 			}
 			.listStyle(.inset)
 			.font(.title2)
+			.scrollContentBackground(.hidden)
+		}
+	}
+
+	@ViewBuilder
+	private func backgroundImageView() -> some View {
+		GeometryReader { proxy in
+			if let backgroundImage {
+				Image(uiImage: backgroundImage)
+					.resizable()
+					.aspectRatio(contentMode: .fill)
+					.ignoresSafeArea()
+					.frame(width: proxy.size.width, height: proxy.size.height)
+			}
+			else {
+				Color(UIColor.systemBackground)
+			}
 		}
 	}
 
@@ -70,6 +96,13 @@ struct ContentView: View {
 			throw error
 		}
 		isLoading = false
+	}
+
+	private func loadBackroundImage() {
+		Task {
+			let imageURL = try await AsyncMedia.shared.request(url: URL(string: "https://images.unsplash.com/photo-1513051265668-0ebab31671ae")!)
+			backgroundImage = UIImage(contentsOfFile: imageURL.path)
+		}
 	}
 }
 

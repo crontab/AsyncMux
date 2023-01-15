@@ -5,6 +5,7 @@
 //
 
 import Foundation
+import AsyncMux
 
 
 extension URLRequest {
@@ -37,7 +38,7 @@ extension URLRequest {
 					print(String(data: data, encoding: .utf8) ?? "")
 #endif
 				}
-				throw AppError.http(status: httpResponse.statusCode)
+				throw AsyncHTTPError(status: httpResponse.statusCode)
 		}
 	}
 
@@ -91,7 +92,7 @@ extension Data {
 					print("JSON error:", error.localizedDescription)
 			}
 #endif
-			throw AppError.app(code: "invalid_json_response")
+			throw AppError(code: "invalid_json_response", message: "Internal error (invalid JSON response from server)")
 		}
 	}
 }
