@@ -52,7 +52,7 @@ class WeatherAPI {
 		for name in placeNames {
 			do {
 				guard let place = try await geocoder.geocodeAddressString(name).first?.weatherPlace else {
-					throw AppError.app(code: "geocoding_error", message: "Couldn't resolve location for \(name)")
+					throw AppError(code: "geocoding_error", message: "Couldn't resolve location for \(name)")
 				}
 				result.append(place)
 			}
