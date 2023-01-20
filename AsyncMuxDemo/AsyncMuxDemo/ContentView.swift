@@ -5,6 +5,7 @@
 //  Created by Hovik Melikyan on 07/01/2023.
 //
 
+import UIKit // for UIImage
 import SwiftUI
 import AsyncMux
 
@@ -18,7 +19,7 @@ struct ContentView: View {
 
 	@State var items: [Item] = []
 	@State var isLoading: Bool = false
-	@State var backgroundImage: UIImage?
+	@State var backgroundImage: Image?
 
 	var body: some View {
 		ZStack {
@@ -64,7 +65,7 @@ struct ContentView: View {
 	private func backgroundImageView() -> some View {
 		GeometryReader { proxy in
 			if let backgroundImage {
-				Image(uiImage: backgroundImage)
+				backgroundImage
 					.resizable()
 					.aspectRatio(contentMode: .fill)
 					.ignoresSafeArea()
@@ -101,7 +102,7 @@ struct ContentView: View {
 	private func loadBackroundImage() {
 		Task {
 			let imageURL = try await AsyncMedia.shared.request(url: URL(string: "https://images.unsplash.com/photo-1513051265668-0ebab31671ae")!)
-			backgroundImage = UIImage(contentsOfFile: imageURL.path)
+			backgroundImage = Image(uiImage: UIImage(contentsOfFile: imageURL.path)!)
 		}
 	}
 }
