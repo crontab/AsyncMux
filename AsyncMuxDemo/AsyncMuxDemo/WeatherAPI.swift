@@ -51,8 +51,19 @@ class WeatherAPI {
 		var result: [WeatherPlace] = []
 		for name in placeNames {
 			do {
-				guard let place = try await geocoder.geocodeAddressString(name).first?.weatherPlace else {
-					throw AppError(code: "geocoding_error", message: "Couldn't resolve location for \(name)")
+				// Even though geocodeAddressString() has an async version, we use callback and continuation to silence Swift's strict concurrency checking warnings
+				let place = try await withCheckedThrowingContinuation { continuation in
+					geocoder.geocodeAddressString(name, completionHandler: { placemarks, error in
+						if let placemark = placemarks?.first?.weatherPlace {
+							continuation.resume(with: .success(placemark))
+						}
+						else if let error {
+							continuation.resume(with: .failure(error))
+						}
+						else {
+							continuation.resume(with: .failure(AppError(code: "geocoding_error", message: "Couldn't resolve location for \(name)")))
+						}
+					})
 				}
 				result.append(place)
 			}

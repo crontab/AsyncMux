@@ -29,7 +29,9 @@ struct ContentView: View {
 		.preferredColorScheme(.dark)
 
 		.serverTask(withAlert: true) {
-			loadBackroundImage()
+			Task {
+				try await loadBackroundImage()
+			}
 			try await reload(showIndicator: true, refresh: false)
 		}
 
@@ -38,7 +40,7 @@ struct ContentView: View {
 		}
 	}
 
-	@ViewBuilder
+	@MainActor @ViewBuilder
 	private func listView() -> some View {
 		if isLoading, items.isEmpty {
 			Color.clear
@@ -84,12 +86,15 @@ struct ContentView: View {
 				.refresh(refresh)
 				.request()
 				.map { Item(place: $0, weather: nil) }
-			for i in items.indices {
+			let tasks = items.map { item in
 				Task {
-					items[i].weather = try await WeatherAPI.weather
+					try await WeatherAPI.weather
 						.refresh(refresh)
-						.request(key: items[i].place.key)
+						.request(key: item.place.key)
 				}
+			}
+			for i in items.indices {
+				items[i].weather = try await tasks[i].value
 			}
 		}
 		catch {
@@ -99,11 +104,10 @@ struct ContentView: View {
 		isLoading = false
 	}
 
-	private func loadBackroundImage() {
-		Task {
-			let imageURL = try await AsyncMedia.shared.request(url: URL(string: "https://images.unsplash.com/photo-1513051265668-0ebab31671ae")!)
-			backgroundImage = Image(uiImage: UIImage(contentsOfFile: imageURL.path)!)
-		}
+	@Sendable
+	private func loadBackroundImage() async throws {
+		let imageURL = try await AsyncMedia.shared.request(url: URL(string: "https://images.unsplash.com/photo-1513051265668-0ebab31671ae")!)
+		backgroundImage = Image(uiImage: UIImage(contentsOfFile: imageURL.path)!)
 	}
 }
 
