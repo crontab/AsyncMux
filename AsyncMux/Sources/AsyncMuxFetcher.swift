@@ -9,11 +9,12 @@
 import Foundation
 
 
-public var MuxDefaultTTL: TimeInterval = 30 * 60
+@MainActor
+var MuxDefaultTTL: TimeInterval = 30 * 60
 
 
 @MainActor
-open class _AsyncMuxFetcher<T: Codable> {
+open class _AsyncMuxFetcher<T: Codable & Sendable> {
 
 	public private(set) var storedValue: T?
 

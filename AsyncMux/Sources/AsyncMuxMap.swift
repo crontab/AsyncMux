@@ -13,7 +13,7 @@ public typealias MuxKey = LosslessStringConvertible & Hashable
 
 
 @MainActor
-open class AsyncMuxMap<K: MuxKey, T: Codable>: MuxRepositoryProtocol {
+open class AsyncMuxMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProtocol {
 
 	public var timeToLive: TimeInterval = MuxDefaultTTL
 	public let cacheKey: String

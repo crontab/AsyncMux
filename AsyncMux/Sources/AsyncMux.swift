@@ -10,7 +10,7 @@ import Foundation
 
 
 @MainActor
-open class AsyncMux<T: Codable>: _AsyncMuxFetcher<T>, MuxRepositoryProtocol {
+open class AsyncMux<T: Codable & Sendable>: _AsyncMuxFetcher<T>, MuxRepositoryProtocol {
 
 	public var timeToLive: TimeInterval = MuxDefaultTTL
 	public let cacheKey: String
