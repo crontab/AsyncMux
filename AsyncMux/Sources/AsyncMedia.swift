@@ -9,14 +9,14 @@
 import Foundation
 
 
-@MainActor
-open class AsyncMedia {
+@globalActor
+public actor AsyncMedia {
 
-	public static var shared = AsyncMedia()
+	public static let shared = AsyncMedia()
 
 	private var taskMap: [URL: Task<Void, Error>] = [:]
 
-	open func request(url: URL) async throws -> URL {
+	public func request(url: URL) async throws -> URL {
 		let cachedURL = Self.cacheFileURLFor(url: url, createDir: true)
 
 		if FileManager.default.fileExists(cachedURL) {
@@ -49,7 +49,7 @@ open class AsyncMedia {
 		}
 	}
 
-	open func clear() {
+	public func clear() {
 		try? FileManager.default.removeItem(at: Self.cacheDirURL(create: false))
 	}
 
