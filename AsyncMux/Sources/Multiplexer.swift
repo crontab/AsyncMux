@@ -64,6 +64,11 @@ final class _MuxFetcher<T: Codable & Sendable> {
 	func isExpired(ttl: TimeInterval) -> Bool {
 		Date().timeIntervalSinceReferenceDate > completionTime + ttl
 	}
+
+	func clearMemory() {
+		completionTime = 0
+		storedValue = nil
+	}
 }
 
 
@@ -73,21 +78,21 @@ public typealias MuxKey = LosslessStringConvertible & Hashable & Sendable
 public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProtocol {
 
 	public var timeToLive: TimeInterval = 30 * 60
-	public let cacheDomain: String
+	public let cacheKey: String
 
 	private let cacher: MuxCacher<T>.Type
 	private let onKeyFetch: @Sendable (K) async throws -> T
 	private var fetcherMap: [K: _MuxFetcher<T>] = [:]
 
 	public init(cacheKey: String? = nil, onKeyFetch: @Sendable @escaping (K) async throws -> T) {
-		self.cacheDomain = cacheKey ?? String(describing: T.self)
+		self.cacheKey = cacheKey ?? String(describing: T.self)
 		self.cacher = MuxCacher<T>.self
 		self.onKeyFetch = onKeyFetch
 	}
 
 	public func request(key: K) async throws -> T {
 		let fetcher = fetcherForKey(key)
-		return try await fetcher.request(ttl: timeToLive, cacher: cacher, domain: cacheDomain, key: key) { [self] in
+		return try await fetcher.request(ttl: timeToLive, cacher: cacher, domain: cacheKey, key: key) { [self] in
 			try await onKeyFetch(key)
 		}
 	}
@@ -113,7 +118,7 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 	public func save() {
 		fetcherMap.forEach { key, fetcher in
 			if fetcher.isDirty, let storedValue = fetcher.storedValue {
-				cacher.save(storedValue, domain: cacheDomain, key: String(key))
+				cacher.save(storedValue, domain: cacheKey, key: String(key))
 				fetcher.isDirty = false
 			}
 		}
@@ -128,12 +133,12 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 	}
 
 	public func clear(key: K) {
-		cacher.delete(domain: cacheDomain, key: String(key))
+		cacher.delete(domain: cacheKey, key: String(key))
 		clearMemory(key: key)
 	}
 
 	public func clear() {
-		cacher.deleteDomain(cacheDomain)
+		cacher.deleteDomain(cacheKey)
 		clearMemory()
 	}
 
@@ -144,5 +149,54 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 			fetcherMap[key] = fetcher
 		}
 		return fetcher!
+	}
+}
+
+
+private let muxRootDomain = "_Root"
+
+
+public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
+
+	public var timeToLive: TimeInterval = 30 * 60
+	public let cacheKey: String
+
+	private let cacher = MuxCacher<T>.self
+	private let onKeyFetch: @Sendable () async throws -> T
+	private var fetcher = _MuxFetcher<T>()
+
+	public init(cacheKey: String? = nil, onKeyFetch: @Sendable @escaping () async throws -> T) {
+		self.cacheKey = cacheKey ?? String(describing: T.self)
+		self.onKeyFetch = onKeyFetch
+	}
+
+	public func request() async throws -> T {
+		return try await fetcher.request(ttl: timeToLive, cacher: cacher, domain: muxRootDomain, key: cacheKey) { [self] in
+			try await onKeyFetch()
+		}
+	}
+
+	@discardableResult
+	public func refresh(_ flag: Bool = true) -> Self {
+		if flag {
+			fetcher.refreshFlag = true
+		}
+		return self
+	}
+
+	public func save() {
+		if fetcher.isDirty, let storedValue = fetcher.storedValue {
+			cacher.save(storedValue, domain: muxRootDomain, key: cacheKey)
+			fetcher.isDirty = false
+		}
+	}
+
+	public func clearMemory() {
+		fetcher.clearMemory()
+	}
+
+	public func clear() {
+		cacher.delete(domain: muxRootDomain, key: cacheKey)
+		clearMemory()
 	}
 }
