@@ -17,12 +17,12 @@ final class _MuxFetcher<T: Codable & Sendable> {
 	private var task: Task<T, Error>?
 	private var completionTime: TimeInterval = 0
 
-	func request<K: MuxKey>(ttl: TimeInterval, cacher: MuxCacher<T>, key: K, onFetch: @Sendable @escaping () async throws -> T) async throws -> T {
+	func request<K: MuxKey>(ttl: TimeInterval, cacher: MuxCacher<T>.Type, domain: String, key: K, onFetch: @Sendable @escaping () async throws -> T) async throws -> T {
 		if !refreshFlag, !isExpired(ttl: ttl) {
 			if let storedValue {
 				return storedValue
 			}
-			else if let cachedValue = cacher.load(key: String(key)) {
+			else if let cachedValue = cacher.load(domain: domain, key: String(key)) {
 				storedValue = cachedValue
 				return cachedValue
 			}
@@ -37,7 +37,7 @@ final class _MuxFetcher<T: Codable & Sendable> {
 					return try await onFetch()
 				}
 				catch {
-					if error.isSilencable, let cachedValue = storedValue ?? cacher.load(key: String(key)) {
+					if error.isSilencable, let cachedValue = storedValue ?? cacher.load(domain: domain, key: String(key)) {
 						return cachedValue
 					}
 					throw error
@@ -75,19 +75,19 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 	public var timeToLive: TimeInterval = 30 * 60
 	public let cacheDomain: String
 
-	private let cacher: MuxCacher<T>
+	private let cacher: MuxCacher<T>.Type
 	private let onKeyFetch: @Sendable (K) async throws -> T
 	private var fetcherMap: [K: _MuxFetcher<T>] = [:]
 
 	public init(cacheKey: String? = nil, onKeyFetch: @Sendable @escaping (K) async throws -> T) {
 		self.cacheDomain = cacheKey ?? String(describing: T.self)
-		self.cacher = MuxCacher<T>(domain: self.cacheDomain)
+		self.cacher = MuxCacher<T>.self
 		self.onKeyFetch = onKeyFetch
 	}
 
 	public func request(key: K) async throws -> T {
 		let fetcher = fetcherForKey(key)
-		return try await fetcher.request(ttl: timeToLive, cacher: cacher, key: key) { [self] in
+		return try await fetcher.request(ttl: timeToLive, cacher: cacher, domain: cacheDomain, key: key) { [self] in
 			try await onKeyFetch(key)
 		}
 	}
@@ -113,7 +113,7 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 	public func save() {
 		fetcherMap.forEach { key, fetcher in
 			if fetcher.isDirty, let storedValue = fetcher.storedValue {
-				cacher.save(storedValue, key: String(key))
+				cacher.save(storedValue, domain: cacheDomain, key: String(key))
 				fetcher.isDirty = false
 			}
 		}
@@ -128,12 +128,12 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 	}
 
 	public func clear(key: K) {
-		cacher.delete(key: String(key))
+		cacher.delete(domain: cacheDomain, key: String(key))
 		clearMemory(key: key)
 	}
 
 	public func clear() {
-		cacher.deleteDomain()
+		cacher.deleteDomain(cacheDomain)
 		clearMemory()
 	}
 

@@ -9,31 +9,29 @@
 import Foundation
 
 
-public struct MuxCacher<Object: Codable>: Sendable {
+public class MuxCacher<Object: Codable> {
 
-	let domain: String
-
-	public func load(key: String) -> Object? {
-		return try? JSONDecoder().decode(Object.self, from: Data(contentsOf: cacheFileURL(key: key, create: false)))
+	public static func load(domain: String, key: String) -> Object? {
+		return try? JSONDecoder().decode(Object.self, from: Data(contentsOf: cacheFileURL(domain: domain, key: key, create: false)))
 	}
 
-	public func save(_ result: Object, key: String) {
-		try! JSONEncoder().encode(result).write(to: cacheFileURL(key: key, create: true), options: .atomic)
+	public static func save(_ result: Object, domain: String, key: String) {
+		try! JSONEncoder().encode(result).write(to: cacheFileURL(domain: domain, key: key, create: true), options: .atomic)
 	}
 
-	public func delete(key: String) {
-		try? FileManager.default.removeItem(at: cacheFileURL(key: key, create: false))
+	public static func delete(domain: String, key: String) {
+		try? FileManager.default.removeItem(at: cacheFileURL(domain: domain, key: key, create: false))
 	}
 
-	public func deleteDomain() {
-		try? FileManager.default.removeItem(at: cacheDirURL(create: false))
+	public static func deleteDomain(_ domain: String) {
+		try? FileManager.default.removeItem(at: cacheDirURL(domain: domain, create: false))
 	}
 
-	private func cacheFileURL(key: String, create: Bool) -> URL {
-		return cacheDirURL(create: create).appendingPathComponent(key).appendingPathExtension("json")
+	private static func cacheFileURL(domain: String, key: String, create: Bool) -> URL {
+		return cacheDirURL(domain: domain, create: create).appendingPathComponent(key).appendingPathExtension("json")
 	}
 
-	private func cacheDirURL(create: Bool) -> URL {
+	private static func cacheDirURL(domain: String, create: Bool) -> URL {
 		let dir = "AsyncMux/" + domain
 		return FileManager.default.cachesDirectory(subDirectory: dir, create: create)
 	}
