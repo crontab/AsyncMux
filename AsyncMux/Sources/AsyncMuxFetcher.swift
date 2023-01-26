@@ -24,12 +24,12 @@ open class _AsyncMuxFetcher<T: Codable & Sendable> {
 	private var task: Task<T, Error>?
 	private var completionTime: TimeInterval = 0
 
-	func request(ttl: TimeInterval, cacher: some AsyncMuxCacher<T>, key: String, onFetch: @escaping () async throws -> T) async throws -> T {
+	func request<K: MuxKey>(ttl: TimeInterval, cacher: some AsyncMuxCacher<T>, key: K, onFetch: @escaping () async throws -> T) async throws -> T {
 		if !refreshFlag, !isExpired(ttl: ttl) {
 			if let storedValue {
 				return storedValue
 			}
-			else if let cachedValue = cacher.load(key: key) {
+			else if let cachedValue = cacher.load(key: String(key)) {
 				storedValue = cachedValue
 				return cachedValue
 			}
@@ -43,7 +43,7 @@ open class _AsyncMuxFetcher<T: Codable & Sendable> {
 					return try await onFetch()
 				}
 				catch {
-					if error.isSilencable, let cachedValue = storedValue ?? cacher.load(key: key) {
+					if error.isSilencable, let cachedValue = storedValue ?? cacher.load(key: String(key)) {
 						return cachedValue
 					}
 					throw error

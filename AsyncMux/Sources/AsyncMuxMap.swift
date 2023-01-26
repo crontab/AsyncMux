@@ -20,7 +20,7 @@ open class AsyncMuxMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProtocol 
 
 	private let cacher: any AsyncMuxCacher<T>
 	private let onKeyFetch: (K) async throws -> T
-	private var fetcherMap: [String: _AsyncMuxFetcher<T>] = [:]
+	private var fetcherMap: [K: _AsyncMuxFetcher<T>] = [:]
 
 	public convenience init(cacheKey: String? = nil, onKeyFetch: @escaping (K) async throws -> T) {
 		let cacheKey = cacheKey ?? String(describing: T.self)
@@ -35,7 +35,7 @@ open class AsyncMuxMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProtocol 
 
 	public func request(key: K) async throws -> T {
 		let fetcher = fetcherForKey(key)
-		return try await fetcher.request(ttl: timeToLive, cacher: cacher, key: String(key)) { [self] in
+		return try await fetcher.request(ttl: timeToLive, cacher: cacher, key: key) { [self] in
 			try await onKeyFetch(key)
 		}
 	}
@@ -43,7 +43,7 @@ open class AsyncMuxMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProtocol 
 	@discardableResult
 	public func refresh(_ flag: Bool = true, key: K) -> Self {
 		if flag {
-			fetcherMap[String(key)]?.refreshFlag = true
+			fetcherMap[key]?.refreshFlag = true
 		}
 		return self
 	}
@@ -60,7 +60,7 @@ open class AsyncMuxMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProtocol 
 
 	@discardableResult
 	public func clearMemory(key: K) -> Self {
-		fetcherMap.removeValue(forKey: String(key))
+		fetcherMap.removeValue(forKey: key)
 		return self
 	}
 
@@ -94,10 +94,10 @@ open class AsyncMuxMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProtocol 
 	}
 
 	private func fetcherForKey(_ key: K) -> _AsyncMuxFetcher<T> {
-		var fetcher = fetcherMap[String(key)]
+		var fetcher = fetcherMap[key]
 		if fetcher == nil {
 			fetcher = _AsyncMuxFetcher<T>()
-			fetcherMap[String(key)] = fetcher
+			fetcherMap[key] = fetcher
 		}
 		return fetcher!
 	}
