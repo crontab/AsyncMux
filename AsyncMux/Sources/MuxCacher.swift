@@ -1,5 +1,5 @@
 //
-//  AsyncMuxCacher.swift
+//  MuxCacher.swift
 //  AsyncMux
 //
 //  Created by Hovik Melikyan on 09/01/2023.
@@ -9,7 +9,7 @@
 import Foundation
 
 
-public protocol AsyncMuxCacher<Object> {
+public protocol MuxCacher<Object>: Sendable {
 	associatedtype Object = Codable
 	func load(key: String) -> Object?
 	func save(_ result: Object, key: String)
@@ -18,7 +18,7 @@ public protocol AsyncMuxCacher<Object> {
 }
 
 
-public struct NullCacher<Object: Codable>: AsyncMuxCacher {
+public struct NullCacher<Object: Codable>: MuxCacher {
 	public func load(key: String) -> Object? { nil }
 	public func save(_ result: Object, key: String) { }
 	public func delete(key: String) { }
@@ -26,9 +26,9 @@ public struct NullCacher<Object: Codable>: AsyncMuxCacher {
 }
 
 
-public struct JSONDiskCacher<Object: Codable>: AsyncMuxCacher {
+public struct JSONDiskCacher<Object: Codable>: MuxCacher {
 
-	let domain: String?
+	let domain: String
 
 	public func load(key: String) -> Object? {
 		return try? JSONDecoder().decode(Object.self, from: Data(contentsOf: cacheFileURL(key: key, create: false)))
@@ -43,7 +43,6 @@ public struct JSONDiskCacher<Object: Codable>: AsyncMuxCacher {
 	}
 
 	public func deleteDomain() {
-		precondition(domain != nil)
 		try? FileManager.default.removeItem(at: cacheDirURL(create: false))
 	}
 
@@ -52,7 +51,7 @@ public struct JSONDiskCacher<Object: Codable>: AsyncMuxCacher {
 	}
 
 	private func cacheDirURL(create: Bool) -> URL {
-		let dir = "AsyncMux/" + (domain ?? "")
+		let dir = "AsyncMux/" + domain
 		return FileManager.default.cachesDirectory(subDirectory: dir, create: create)
 	}
 }
