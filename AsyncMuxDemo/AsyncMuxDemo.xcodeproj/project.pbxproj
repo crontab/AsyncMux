@@ -92,7 +92,6 @@
 		36FB700E296A10F90006ACBA /* AsyncMuxDemo */ = {
 			isa = PBXGroup;
 			children = (
-				36F73231297AE6B00019807B /* AsyncMuxDemo.entitlements */,
 				3625CE1D296A283800D09A8F /* Globals.swift */,
 				36FB701F296A14400006ACBA /* AppError.swift */,
 				36FB701D296A12D20006ACBA /* URLRequestEx.swift */,
@@ -102,6 +101,7 @@
 				36FB7011296A10F90006ACBA /* ContentView.swift */,
 				36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */,
 				36FB7013296A10FB0006ACBA /* Assets.xcassets */,
+				36F73231297AE6B00019807B /* AsyncMuxDemo.entitlements */,
 				360EBA4C296A2AA9001EC729 /* Info.plist */,
 				36FB7015296A10FB0006ACBA /* Preview Content */,
 			);

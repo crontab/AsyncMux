@@ -10,8 +10,13 @@ import Foundation
 
 public typealias MuxKey = LosslessStringConvertible & Hashable & Sendable
 
+private let defaultTTL: TimeInterval = 30 * 60
+private let muxRootDomain = "_Root"
+
 
 final class _MuxFetcher<K: MuxKey, T: Codable & Sendable> {
+
+	typealias OnFetch = @Sendable () async throws -> T
 
 	var storedValue: T?
 	var isDirty: Bool = false
@@ -20,7 +25,7 @@ final class _MuxFetcher<K: MuxKey, T: Codable & Sendable> {
 	private var task: Task<T, Error>?
 	private var completionTime: TimeInterval = 0
 
-	func request(ttl: TimeInterval, cacher: MuxCacher<T>.Type, domain: String, key: K, onFetch: @Sendable @escaping () async throws -> T) async throws -> T {
+	func request(ttl: TimeInterval, cacher: MuxCacher<T>.Type, domain: String, key: K, onFetch: @escaping OnFetch) async throws -> T {
 		if !refreshFlag, !isExpired(ttl: ttl) {
 			if let storedValue {
 				return storedValue
@@ -75,16 +80,66 @@ final class _MuxFetcher<K: MuxKey, T: Codable & Sendable> {
 }
 
 
+public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
+
+	public typealias OnFetch = @Sendable () async throws -> T
+
+	public var timeToLive: TimeInterval = defaultTTL
+	public let cacheKey: String
+
+	private let cacher = MuxCacher<T>.self
+	private let onFetch: OnFetch
+	private var fetcher = _MuxFetcher<String, T>()
+
+	public init(cacheKey: String? = nil, onFetch: @escaping OnFetch) {
+		self.cacheKey = cacheKey ?? String(describing: T.self)
+		self.onFetch = onFetch
+	}
+
+	public func request() async throws -> T {
+		return try await fetcher.request(ttl: timeToLive, cacher: cacher, domain: muxRootDomain, key: cacheKey) { [self] in
+			try await onFetch()
+		}
+	}
+
+	@discardableResult
+	public func refresh(_ flag: Bool = true) -> Self {
+		if flag {
+			fetcher.refreshFlag = true
+		}
+		return self
+	}
+
+	public func save() {
+		if fetcher.isDirty, let storedValue = fetcher.storedValue {
+			cacher.save(storedValue, domain: muxRootDomain, key: cacheKey)
+			fetcher.isDirty = false
+		}
+	}
+
+	public func clearMemory() {
+		fetcher.clearMemory()
+	}
+
+	public func clear() {
+		cacher.delete(domain: muxRootDomain, key: cacheKey)
+		clearMemory()
+	}
+}
+
+
 public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProtocol {
 
-	public var timeToLive: TimeInterval = 30 * 60
+	public typealias OnKeyFetch = @Sendable (K) async throws -> T
+
+	public var timeToLive: TimeInterval = defaultTTL
 	public let cacheKey: String
 
 	private let cacher: MuxCacher<T>.Type
-	private let onKeyFetch: @Sendable (K) async throws -> T
+	private let onKeyFetch: OnKeyFetch
 	private var fetcherMap: [K: _MuxFetcher<K, T>] = [:]
 
-	public init(cacheKey: String? = nil, onKeyFetch: @Sendable @escaping (K) async throws -> T) {
+	public init(cacheKey: String? = nil, onKeyFetch: @escaping OnKeyFetch) {
 		self.cacheKey = cacheKey ?? String(describing: T.self)
 		self.cacher = MuxCacher<T>.self
 		self.onKeyFetch = onKeyFetch
@@ -149,54 +204,5 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 			fetcherMap[key] = fetcher
 		}
 		return fetcher!
-	}
-}
-
-
-private let muxRootDomain = "_Root"
-
-
-public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
-
-	public var timeToLive: TimeInterval = 30 * 60
-	public let cacheKey: String
-
-	private let cacher = MuxCacher<T>.self
-	private let onKeyFetch: @Sendable () async throws -> T
-	private var fetcher = _MuxFetcher<String, T>()
-
-	public init(cacheKey: String? = nil, onKeyFetch: @Sendable @escaping () async throws -> T) {
-		self.cacheKey = cacheKey ?? String(describing: T.self)
-		self.onKeyFetch = onKeyFetch
-	}
-
-	public func request() async throws -> T {
-		return try await fetcher.request(ttl: timeToLive, cacher: cacher, domain: muxRootDomain, key: cacheKey) { [self] in
-			try await onKeyFetch()
-		}
-	}
-
-	@discardableResult
-	public func refresh(_ flag: Bool = true) -> Self {
-		if flag {
-			fetcher.refreshFlag = true
-		}
-		return self
-	}
-
-	public func save() {
-		if fetcher.isDirty, let storedValue = fetcher.storedValue {
-			cacher.save(storedValue, domain: muxRootDomain, key: cacheKey)
-			fetcher.isDirty = false
-		}
-	}
-
-	public func clearMemory() {
-		fetcher.clearMemory()
-	}
-
-	public func clear() {
-		cacher.delete(domain: muxRootDomain, key: cacheKey)
-		clearMemory()
 	}
 }
