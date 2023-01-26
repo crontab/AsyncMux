@@ -9,24 +9,7 @@
 import Foundation
 
 
-public protocol MuxCacher<Object>: Sendable {
-	associatedtype Object = Codable
-	func load(key: String) -> Object?
-	func save(_ result: Object, key: String)
-	func delete(key: String)
-	func deleteDomain()
-}
-
-
-public struct NullCacher<Object: Codable>: MuxCacher {
-	public func load(key: String) -> Object? { nil }
-	public func save(_ result: Object, key: String) { }
-	public func delete(key: String) { }
-	public func deleteDomain() { }
-}
-
-
-public struct JSONDiskCacher<Object: Codable>: MuxCacher {
+public struct MuxCacher<Object: Codable>: Sendable {
 
 	let domain: String
 

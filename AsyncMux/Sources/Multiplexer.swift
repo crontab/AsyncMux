@@ -17,7 +17,7 @@ final class _MuxFetcher<T: Codable & Sendable> {
 	private var task: Task<T, Error>?
 	private var completionTime: TimeInterval = 0
 
-	func request<K: MuxKey>(ttl: TimeInterval, cacher: some MuxCacher<T>, key: K, onFetch: @Sendable @escaping () async throws -> T) async throws -> T {
+	func request<K: MuxKey>(ttl: TimeInterval, cacher: MuxCacher<T>, key: K, onFetch: @Sendable @escaping () async throws -> T) async throws -> T {
 		if !refreshFlag, !isExpired(ttl: ttl) {
 			if let storedValue {
 				return storedValue
@@ -73,15 +73,15 @@ public typealias MuxKey = LosslessStringConvertible & Hashable & Sendable
 public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProtocol {
 
 	public var timeToLive: TimeInterval = 30 * 60
-	public let cacheKey: String
+	public let cacheDomain: String
 
-	private let cacher: any MuxCacher<T>
+	private let cacher: MuxCacher<T>
 	private let onKeyFetch: @Sendable (K) async throws -> T
 	private var fetcherMap: [K: _MuxFetcher<T>] = [:]
 
-	public init(cacheKey: String? = nil, cacher: some MuxCacher<T>, onKeyFetch: @Sendable @escaping (K) async throws -> T) {
-		self.cacheKey = cacheKey ?? String(describing: T.self)
-		self.cacher = cacher
+	public init(cacheKey: String? = nil, onKeyFetch: @Sendable @escaping (K) async throws -> T) {
+		self.cacheDomain = cacheKey ?? String(describing: T.self)
+		self.cacher = MuxCacher<T>(domain: self.cacheDomain)
 		self.onKeyFetch = onKeyFetch
 	}
 
