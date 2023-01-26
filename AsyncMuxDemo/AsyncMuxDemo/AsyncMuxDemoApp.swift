@@ -20,7 +20,9 @@ struct AsyncMuxDemoApp: App {
 			.onChange(of: scenePhase) { newPhase in
 				switch newPhase {
 					case .background:
-						MuxRepository.saveAll()
+						Task {
+							await MuxRepository.shared.saveAll()
+						}
 					case .inactive:
 						break
 					case .active:

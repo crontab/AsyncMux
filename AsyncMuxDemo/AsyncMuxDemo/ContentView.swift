@@ -37,7 +37,8 @@ struct ContentView: View {
 		}
 	}
 
-	@MainActor @ViewBuilder
+	@MainActor // this is because List() generates an error in strict mode, an Apple bug
+	@ViewBuilder
 	private func listView() -> some View {
 		if isLoading, items.isEmpty {
 			Color.clear

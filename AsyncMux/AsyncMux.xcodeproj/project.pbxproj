@@ -59,11 +59,11 @@
 		362CC58C29746BE900059933 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				3635172529746D2600F9B045 /* AsyncError.swift */,
-				3635172829746D2600F9B045 /* AsyncMedia.swift */,
-				3635172929746D2600F9B045 /* MuxCacher.swift */,
 				36E20F2E298215640022D151 /* Multiplexer.swift */,
+				3635172829746D2600F9B045 /* AsyncMedia.swift */,
 				3635172A29746D2600F9B045 /* MuxRepository.swift */,
+				3635172929746D2600F9B045 /* MuxCacher.swift */,
+				3635172529746D2600F9B045 /* AsyncError.swift */,
 				3635172729746D2600F9B045 /* Utils.swift */,
 				362CC58D29746BE900059933 /* AsyncMux.h */,
 			);

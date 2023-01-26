@@ -8,7 +8,10 @@
 import Foundation
 
 
-final class _MuxFetcher<T: Codable & Sendable> {
+public typealias MuxKey = LosslessStringConvertible & Hashable & Sendable
+
+
+final class _MuxFetcher<K: MuxKey, T: Codable & Sendable> {
 
 	var storedValue: T?
 	var isDirty: Bool = false
@@ -17,7 +20,7 @@ final class _MuxFetcher<T: Codable & Sendable> {
 	private var task: Task<T, Error>?
 	private var completionTime: TimeInterval = 0
 
-	func request<K: MuxKey>(ttl: TimeInterval, cacher: MuxCacher<T>.Type, domain: String, key: K, onFetch: @Sendable @escaping () async throws -> T) async throws -> T {
+	func request(ttl: TimeInterval, cacher: MuxCacher<T>.Type, domain: String, key: K, onFetch: @Sendable @escaping () async throws -> T) async throws -> T {
 		if !refreshFlag, !isExpired(ttl: ttl) {
 			if let storedValue {
 				return storedValue
@@ -72,9 +75,6 @@ final class _MuxFetcher<T: Codable & Sendable> {
 }
 
 
-public typealias MuxKey = LosslessStringConvertible & Hashable & Sendable
-
-
 public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProtocol {
 
 	public var timeToLive: TimeInterval = 30 * 60
@@ -82,7 +82,7 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 
 	private let cacher: MuxCacher<T>.Type
 	private let onKeyFetch: @Sendable (K) async throws -> T
-	private var fetcherMap: [K: _MuxFetcher<T>] = [:]
+	private var fetcherMap: [K: _MuxFetcher<K, T>] = [:]
 
 	public init(cacheKey: String? = nil, onKeyFetch: @Sendable @escaping (K) async throws -> T) {
 		self.cacheKey = cacheKey ?? String(describing: T.self)
@@ -142,10 +142,10 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 		clearMemory()
 	}
 
-	private func fetcherForKey(_ key: K) -> _MuxFetcher<T> {
+	private func fetcherForKey(_ key: K) -> _MuxFetcher<K, T> {
 		var fetcher = fetcherMap[key]
 		if fetcher == nil {
-			fetcher = _MuxFetcher<T>()
+			fetcher = _MuxFetcher()
 			fetcherMap[key] = fetcher
 		}
 		return fetcher!
@@ -163,7 +163,7 @@ public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
 	private let cacher = MuxCacher<T>.self
 	private let onKeyFetch: @Sendable () async throws -> T
-	private var fetcher = _MuxFetcher<T>()
+	private var fetcher = _MuxFetcher<String, T>()
 
 	public init(cacheKey: String? = nil, onKeyFetch: @Sendable @escaping () async throws -> T) {
 		self.cacheKey = cacheKey ?? String(describing: T.self)

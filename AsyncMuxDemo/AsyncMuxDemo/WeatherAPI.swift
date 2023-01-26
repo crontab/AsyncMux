@@ -39,17 +39,9 @@ struct WeatherItem: Hashable {
 }
 
 
-@MainActor
 class WeatherAPI {
 
-	static var placeNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Tokyo, JP"] {
-		didSet {
-			if placeNames != oldValue {
-				places.refresh()
-				weather.refresh()
-			}
-		}
-	}
+	static let placeNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Tokyo, JP"]
 
 
 	static func reload(refresh: Bool) async throws -> [WeatherItem] {
@@ -71,7 +63,7 @@ class WeatherAPI {
 	}
 
 
-	private static var places = AsyncMux<[WeatherPlace]> {
+	private static let places = Multiplexer<[WeatherPlace]> {
 		// Geocoding requests should be performed one at a time, hence the loop
 		var result: [WeatherPlace] = []
 		for name in placeNames {
@@ -104,7 +96,7 @@ class WeatherAPI {
 	}.register()
 
 
-	private static var weather = AsyncMuxMap<String, Weather> { key in
+	private static let weather = MultiplexerMap<String, Weather> { key in
 		guard let coordinate = CLLocationCoordinate2D(string: key) else {
 			throw AppError.unknown
 		}
