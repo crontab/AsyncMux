@@ -12,12 +12,7 @@ import AsyncMux
 
 struct ContentView: View {
 
-	struct Item: Hashable {
-		var place: WeatherPlace
-		var weather: Weather?
-	}
-
-	@State var items: [Item] = []
+	@State var items: [WeatherItem] = []
 	@State var isLoading: Bool = false
 	@State var backgroundImage: Image?
 
@@ -30,17 +25,20 @@ struct ContentView: View {
 
 		.serverTask(withAlert: true) {
 			Task {
-				try await loadBackroundImage()
+				// NOTE: errors are ignored by this Task (very strange behavior)
+				let imageURL = try await AsyncMedia.shared.request(url: URL(string: "https://images.unsplash.com/photo-1513051265668-0ebab31671ae")!)
+				backgroundImage = UIImage(contentsOfFile: imageURL.path).map { Image(uiImage: $0) }
 			}
-			try await reload(showIndicator: true, refresh: false)
+			items = try await WeatherAPI.reload(refresh: false)
 		}
 
 		.serverRefreshable(withAlert: false) {
-			try? await reload(showIndicator: false, refresh: true)
+			items = try await WeatherAPI.reload(refresh: true)
 		}
 	}
 
-	@MainActor @ViewBuilder
+	@MainActor // this is because List() generates an error in strict mode, an Apple bug
+	@ViewBuilder
 	private func listView() -> some View {
 		if isLoading, items.isEmpty {
 			Color.clear
@@ -77,37 +75,6 @@ struct ContentView: View {
 				Color(UIColor.systemBackground)
 			}
 		}
-	}
-
-	private func reload(showIndicator: Bool, refresh: Bool) async throws {
-		isLoading = showIndicator
-		do {
-			items = try await WeatherAPI.places
-				.refresh(refresh)
-				.request()
-				.map { Item(place: $0, weather: nil) }
-			let tasks = items.map { item in
-				Task {
-					try await WeatherAPI.weather
-						.refresh(refresh)
-						.request(key: item.place.key)
-				}
-			}
-			for i in items.indices {
-				items[i].weather = try await tasks[i].value
-			}
-		}
-		catch {
-			isLoading = false
-			throw error
-		}
-		isLoading = false
-	}
-
-	@Sendable
-	private func loadBackroundImage() async throws {
-		let imageURL = try await AsyncMedia.shared.request(url: URL(string: "https://images.unsplash.com/photo-1513051265668-0ebab31671ae")!)
-		backgroundImage = Image(uiImage: UIImage(contentsOfFile: imageURL.path)!)
 	}
 }
 
