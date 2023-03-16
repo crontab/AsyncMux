@@ -9,13 +9,13 @@
 import Foundation
 
 
+/// Asynchronous caching downloader for video, audio or other large media files. Call `AsyncMedia.shared.request(url:)` to retrieve the local file path of the cached object. The result is a file URL. Use the `AsyncMedia.shared` actor-singleton in your app.
 @globalActor
 public actor AsyncMedia {
 
 	public static let shared = AsyncMedia()
 
-	private var taskMap: [URL: Task<Void, Error>] = [:]
-
+	/// Requests an immutable remote file. The file will be stored in the app's cache directory and the URL returned to the caller asynchronously. For each URL, multiple simultaneous network requests are merged into one request. For subsequent requests a local file URL will be returned immediately. Note that the cached files can be removed by the OS at any time to free disk space, but only when the app is not running.
 	public func request(url: URL) async throws -> URL {
 		let cachedURL = Self.cacheFileURLFor(url: url, createDir: true)
 
@@ -25,7 +25,7 @@ public actor AsyncMedia {
 
 		if taskMap[url] == nil {
 			taskMap[url] = Task {
-				DLOG("AsyncMedia: Downloading: \(url.absoluteString)")
+				DLOG("AsyncMedia: Downloading: \(url)")
 				let (tempURL, response) = try await Self.sharedSession.download(from: url)
 				let httpResponse = response as! HTTPURLResponse
 				switch httpResponse.statusCode {
@@ -49,9 +49,12 @@ public actor AsyncMedia {
 		}
 	}
 
+	/// Clears all files cached via `AsyncMedia.shared.request(url:)`.
 	public func clear() {
 		try? FileManager.default.removeItem(at: Self.cacheDirURL(create: false))
 	}
+
+	private var taskMap: [URL: Task<Void, Error>] = [:]
 
 	private static let sharedSession = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
 
@@ -62,4 +65,6 @@ public actor AsyncMedia {
 	private static func cacheDirURL(create: Bool) -> URL {
 		FileManager.default.cachesDirectory(subDirectory: "AsyncMediaFiles", create: create)
 	}
+
+	private init() { }
 }

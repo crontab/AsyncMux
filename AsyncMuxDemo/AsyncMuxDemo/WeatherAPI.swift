@@ -63,7 +63,7 @@ class WeatherAPI {
 	}
 
 
-	private static let places = Multiplexer<[WeatherPlace]> {
+	private static let places = Multiplexer {
 		// Geocoding requests should be performed one at a time, hence the loop
 		var result: [WeatherPlace] = []
 		for name in placeNames {
@@ -96,7 +96,7 @@ class WeatherAPI {
 	}.register()
 
 
-	private static let weather = MultiplexerMap<String, Weather> { key in
+	private static let weather = MultiplexerMap { key in
 		guard let coordinate = CLLocationCoordinate2D(string: key) else {
 			throw AppError.unknown
 		}

@@ -25,7 +25,7 @@ struct ContentView: View {
 
 		.serverTask(withAlert: true) {
 			Task {
-				// NOTE: errors are ignored by this Task (very strange behavior)
+				// NOTE: errors thrown here are ignored by the Task (this is by design according to Apple)
 				let imageURL = try await AsyncMedia.shared.request(url: URL(string: "https://images.unsplash.com/photo-1513051265668-0ebab31671ae")!)
 				backgroundImage = UIImage(contentsOfFile: imageURL.path).map { Image(uiImage: $0) }
 			}
