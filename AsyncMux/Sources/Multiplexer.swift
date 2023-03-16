@@ -11,7 +11,7 @@ import Foundation
 public typealias MuxKey = LosslessStringConvertible & Hashable & Sendable
 
 private let defaultTTL: TimeInterval = 30 * 60
-private let muxRootDomain = "_Root"
+private let muxRootDomain = "_Root.Domain"
 
 
 // MARK: - Multiplexer
@@ -25,7 +25,6 @@ public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
 	public typealias OnFetch = @Sendable () async throws -> T
 
-	public var timeToLive: TimeInterval = defaultTTL
 	public let cacheKey: String
 
 	///
@@ -42,7 +41,7 @@ public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 	/// Performs a request either by calling the `onFetch` block supplied in the multiplexer's constructor, or by returning the previously cached object, if available. Multiple simultaneous calls to `request()` are handled by the Multiplexer so that only one `onFetch` operation can be invoked at a time, but all callers of `request()` will eventually receive the result.
 	///
 	public func request() async throws -> T {
-		return try await fetcher.request(ttl: timeToLive, cacher: cacher, domain: muxRootDomain, key: cacheKey) { [self] in
+		return try await fetcher.request(cacher: cacher, domain: muxRootDomain, key: cacheKey) { [self] in
 			try await onFetch()
 		}
 	}
@@ -91,7 +90,6 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 
 	public typealias OnKeyFetch = @Sendable (K) async throws -> T
 
-	public var timeToLive: TimeInterval = defaultTTL
 	public let cacheKey: String
 
 	///
@@ -109,7 +107,7 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 	///
 	public func request(key: K) async throws -> T {
 		let fetcher = fetcherForKey(key)
-		return try await fetcher.request(ttl: timeToLive, cacher: cacher, domain: cacheKey, key: key) { [self] in
+		return try await fetcher.request(cacher: cacher, domain: cacheKey, key: key) { [self] in
 			try await onKeyFetch(key)
 		}
 	}
@@ -192,8 +190,8 @@ final private class _MuxFetcher<K: MuxKey, T: Codable & Sendable> {
 	private var task: Task<T, Error>?
 	private var completionTime: TimeInterval = 0
 
-	func request(ttl: TimeInterval, cacher: MuxCacher<T>.Type, domain: String, key: K, onFetch: @escaping OnFetch) async throws -> T {
-		if !refreshFlag, !isExpired(ttl: ttl) {
+	func request(cacher: MuxCacher<T>.Type, domain: String, key: K, onFetch: @escaping OnFetch) async throws -> T {
+		if !refreshFlag, !isExpired(ttl: defaultTTL) {
 			if let storedValue {
 				return storedValue
 			}
