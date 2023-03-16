@@ -38,7 +38,7 @@ extension URLRequest {
 					print(String(data: data, encoding: .utf8) ?? "")
 #endif
 				}
-				throw AsyncHTTPError(status: httpResponse.statusCode)
+				throw HTTPError(status: httpResponse.statusCode)
 		}
 	}
 

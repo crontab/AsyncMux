@@ -9,7 +9,7 @@
 import Foundation
 
 
-public struct AsyncHTTPError: LocalizedError {
+public struct HTTPError: LocalizedError {
 	public let status: Int
 
 	public init(status: Int) {

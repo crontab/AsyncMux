@@ -33,7 +33,7 @@ public actor AsyncMedia {
 						try FileManager.default.moveItem(at: tempURL, to: cachedURL)
 						DLOG("AsyncMedia: Completed: \(url)")
 					default:
-						throw AsyncHTTPError(status: httpResponse.statusCode)
+						throw HTTPError(status: httpResponse.statusCode)
 				}
 			}
 		}

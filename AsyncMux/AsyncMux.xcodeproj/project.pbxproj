@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		362CC58E29746BE900059933 /* AsyncMux.h in Headers */ = {isa = PBXBuildFile; fileRef = 362CC58D29746BE900059933 /* AsyncMux.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3635172D29746D2700F9B045 /* AsyncError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172529746D2600F9B045 /* AsyncError.swift */; };
-		3635172F29746D2700F9B045 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172729746D2600F9B045 /* Utils.swift */; };
+		3635172F29746D2700F9B045 /* AsyncUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172729746D2600F9B045 /* AsyncUtils.swift */; };
 		3635173029746D2700F9B045 /* AsyncMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172829746D2600F9B045 /* AsyncMedia.swift */; };
 		3635173129746D2700F9B045 /* MuxCacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172929746D2600F9B045 /* MuxCacher.swift */; };
 		3635173229746D2700F9B045 /* MuxRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172A29746D2600F9B045 /* MuxRepository.swift */; };
@@ -20,7 +20,7 @@
 		362CC58A29746BE900059933 /* AsyncMux.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AsyncMux.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		362CC58D29746BE900059933 /* AsyncMux.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AsyncMux.h; sourceTree = "<group>"; };
 		3635172529746D2600F9B045 /* AsyncError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncError.swift; sourceTree = "<group>"; };
-		3635172729746D2600F9B045 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		3635172729746D2600F9B045 /* AsyncUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncUtils.swift; sourceTree = "<group>"; };
 		3635172829746D2600F9B045 /* AsyncMedia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncMedia.swift; sourceTree = "<group>"; };
 		3635172929746D2600F9B045 /* MuxCacher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MuxCacher.swift; sourceTree = "<group>"; };
 		3635172A29746D2600F9B045 /* MuxRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MuxRepository.swift; sourceTree = "<group>"; };
@@ -64,7 +64,7 @@
 				3635172A29746D2600F9B045 /* MuxRepository.swift */,
 				3635172929746D2600F9B045 /* MuxCacher.swift */,
 				3635172529746D2600F9B045 /* AsyncError.swift */,
-				3635172729746D2600F9B045 /* Utils.swift */,
+				3635172729746D2600F9B045 /* AsyncUtils.swift */,
 				362CC58D29746BE900059933 /* AsyncMux.h */,
 			);
 			path = Sources;
@@ -151,7 +151,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3635173229746D2700F9B045 /* MuxRepository.swift in Sources */,
-				3635172F29746D2700F9B045 /* Utils.swift in Sources */,
+				3635172F29746D2700F9B045 /* AsyncUtils.swift in Sources */,
 				3635172D29746D2700F9B045 /* AsyncError.swift in Sources */,
 				3635173129746D2700F9B045 /* MuxCacher.swift in Sources */,
 				3635173029746D2700F9B045 /* AsyncMedia.swift in Sources */,

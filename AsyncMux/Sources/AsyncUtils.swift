@@ -1,5 +1,5 @@
 //
-//  Utils.swift
+//  AsyncUtils.swift
 //  AsyncMux
 //
 //  Created by Hovik Melikyan on 09/01/2023.
