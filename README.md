@@ -7,6 +7,7 @@
 
 - [Introduction](#intro)
 - [Multiplexer](#multiplexer)
+- [MultiplexerMap](#multiplexer-map)
 
 <a name="intro"></a>
 ## 1. Introduction
@@ -107,7 +108,53 @@ See also:
 More detailed descriptions on each method can be found in the source file [Multiplexer.swift](AsyncMux/Sources/Multiplexer.swift).
 
 
+<a name="multiplexer-map"></a>
+## MultiplexerMap<K, T>
 
+`MultiplexerMap<K, T>` is similar to `Multiplexer<T>` in many ways except it maintains a dictionary of objects of the same type. One example would be e.g. user profile objects in your social app.
+
+The `K` generic paramter should conform to `LosslessStringConvertible & Hashable & Sendable`. The string convertibility requirement is because it simplifies the disk cacher's job of storing objects.
+
+The examples given for the Multiplexer above will look as follows. Firstly, suppose you have a method for retrieving a user profile by a user ID:
+
+```swift
+    class Backend {
+        static func fetchUserProfile(id: String) async throws -> UserProfile
+    }
+```
+
+Further, the MultiplexerMap singleton can be defined as follows:
+
+```swift
+    let userProfiles = MultiplexerMap(onKeyFetch: Backend.fetchUserProfile)
+```
+
+And used in the app like so:
+
+```swift
+    try {
+        let profile = try await userProfiles.request(key: "user_8cJOiRXbugFccrUhmCX2")
+    }
+    catch {
+        print("Coudn't retrieve user profile:", error)
+    }
+```
+
+Like `Multiplexer`, `MultiplexerMap` defines its own methods `refresh()`, `clear()` and `save()`. Additionally for `refresh()` and `clear()` there are versions of these methods that take the object key as a parameter.
+
+Internally `MultiplexerMap` maintains a map of `Multiplexer` objects, meaning that fetching and caching of each object by its ID is done independently.
+
+See also:
+
+- `init(cacheKey: String? = nil, onKeyFetch: @escaping @Sendable (K) async throws -> T)`
+- `request(key: K) async throws -> T`
+- `refresh(key: K)`
+- `clear(key: K)`
+- `refresh()`
+- `clear()`
+- `save()`
+- [`Multiplexer`](#multiplexer)
+- [`MuxRepository`](#mux-repository)
 
 
 Weather API used in the demo app: [Open Meteo](https://open-meteo.com/en/docs)
