@@ -8,6 +8,11 @@
 - [Introduction](#intro)
 - [Multiplexer](#multiplexer)
 - [MultiplexerMap](#multiplexer-map)
+- [MuxRepository](#mux-repository)
+- [AsyncMedia](#media-downloader)
+- [Building and linking](#building)
+- [Authors](#authors)
+
 
 <a name="intro"></a>
 ## 1. Introduction
@@ -170,5 +175,33 @@ By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store object
 `MuxRepository.shared.clearAll()` discards all memory and disk objects. This is useful when e.g. the user signs out of your system and you need to make sure no traces are left of data related to a given user in memory or disk.
 
 
+<a name="media-downloader"></a>
+## AsyncMedia
 
-Weather API used in the demo app: [Open Meteo](https://open-meteo.com/en/docs)
+`AsyncMedia` is a global actor-singleton that provides downloading, multiplexing and caching facility for arbitrary large files that are considered immutable.
+
+Like with other multiplexers, `AsyncMedia` ensures that *for each remote URL* only one download process is active regrdless of the number of times the `request(url:)` was called simultaneously.
+
+The download process is based on streaming, which means memory used by each download process is fixed and doesn't depend on the file size.
+
+Each file you request using `AsyncMedia.shared.request(url:)` is downloaded and stored locally in the app's cache directory; the local file URL is then returned asynchronously. Subsequent calls to `request(url:)` for the same URL will return the local file URL immediately.
+
+Note that the remote files are assumed to be immutable, and therefore no time-to-live is maintained, i.e. it is assumed that the file can be stored in the local cache indefinitely. Note also that the OS can wipe the app's cache directory if it needs to free space.
+
+Even though the latest iOS versions provide the `AsyncImage` interface, but for the sake of an example suppose you need to download an image and display it as the background image for your view. An example of how this can be done is [shown in the demo app](AsyncMuxDemo/AsyncMuxDemo/ContentView.swift).
+
+<a name="building"></a>
+## Building and linking
+
+You can either clone this repo and use it as a git submodule in your project, or otherwise use the SPM package definition provided.
+
+If you want to try the demo, launch the `AsyncMux.xcworkspace` file. Weather API used in the demo app: [Open Meteo](https://open-meteo.com/en/docs)
+
+The AsyncMux framework doesn't have any 3rd party dependencies.
+
+Enjoy your coding!
+
+<a name="authors"></a>
+## Authors
+
+AsyncMux is developed by [Hovik Melikyan](https://github.com/crontab).
