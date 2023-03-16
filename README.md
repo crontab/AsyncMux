@@ -41,34 +41,34 @@ A multiplexer singleton guarantees that there will only be one fetch/retrieval o
 Suppose you have a `UserProfile` structure and a method for retrieving the current user's profile object from the backend, whose signature looks like this:
 
 ```swift
-    class Backend {
-        static func fetchMyProfile() async throws -> UserProfile
-    }
+class Backend {
+    static func fetchMyProfile() async throws -> UserProfile
+}
 ```
 
 Then an instantiation of a multiplexer singleton will look like:
 
 ```swift
-    let myProfile = Multiplexer<UserProfile>(onFetch: {
-        return try await Backend.fetchMyProfile()
-    })
+let myProfile = Multiplexer<UserProfile>(onFetch: {
+    return try await Backend.fetchMyProfile()
+})
 ```
 
 Or even shorter:
 
 ```swift
-    let myProfile = Multiplexer(onFetch: Backend.fetchMyProfile)
+let myProfile = Multiplexer(onFetch: Backend.fetchMyProfile)
 ```
 
 You can use `myProfile` to fetch the profile object by calling the `request()` method like so:
 
 ```swift
-    try {
-        let profile = try await myProfile.request()
-    }
-    catch {
-        print("Coudn't retrieve user profile:", error)
-    }
+try {
+    let profile = try await myProfile.request()
+}
+catch {
+    print("Coudn't retrieve user profile:", error)
+}
 ```
 
 When called for the first time, `request()` calls your `onFetch` block, returns it asynchronously to the caller (or throws an error), and also caches the result in memory. Subsequent calls to `request()` will return immediately with the stored object.
@@ -80,10 +80,10 @@ Most importantly, `request()` can handle multiple simultaneous calls and ensures
 By default, `Multiplexer<T>` can store objects as JSON files in the local cache directory. This is done by explicitly calling `save()` on the multiplexer object, or alternatively `saveAll()` on the global repository `MuxRepository` if the multiplexer object is registered there. Registration can be done like so:
     
 ```swift
-    let myProfile = Multiplexer<UserProfile> {
-        return try await Backend.fetchMyProfile()
-    }
-    .register()
+let myProfile = Multiplexer<UserProfile> {
+    return try await Backend.fetchMyProfile()
+}
+.register()
 ```
 
 The objects stored on disk can be reused if your `onFetch` fails due to a connectivity problem. You can additionally tell the multiplexer to ignore the error and fetch the cached object by throwing a `SilencableError` in your `onFetch` method.
@@ -97,7 +97,7 @@ At run time, you can invalidate the cached object using one of the following met
 
 See also:
 
-- `init(cacheKey: String? = nil, onFetch: @escaping (@escaping @Sendable () async throws -> T) -> Void)`
+- `init(cacheKey: String? = nil, onFetch: @escaping @Sendable () async throws -> T)`
 - `request()`
 - `refresh()`
 - `clear()`
@@ -118,26 +118,26 @@ The `K` generic paramter should conform to `LosslessStringConvertible & Hashable
 The examples given for the Multiplexer above will look as follows. Firstly, suppose you have a method for retrieving a user profile by a user ID:
 
 ```swift
-    class Backend {
-        static func fetchUserProfile(id: String) async throws -> UserProfile
-    }
+class Backend {
+    static func fetchUserProfile(id: String) async throws -> UserProfile
+}
 ```
 
 Further, the MultiplexerMap singleton can be defined as follows:
 
 ```swift
-    let userProfiles = MultiplexerMap(onKeyFetch: Backend.fetchUserProfile)
+let userProfiles = MultiplexerMap(onKeyFetch: Backend.fetchUserProfile)
 ```
 
 And used in the app like so:
 
 ```swift
-    try {
-        let profile = try await userProfiles.request(key: "user_8cJOiRXbugFccrUhmCX2")
-    }
-    catch {
-        print("Coudn't retrieve user profile:", error)
-    }
+try {
+    let profile = try await userProfiles.request(key: "user_8cJOiRXbugFccrUhmCX2")
+}
+catch {
+    print("Coudn't retrieve user profile:", error)
+}
 ```
 
 Like `Multiplexer`, `MultiplexerMap` defines its own methods `refresh()`, `clear()` and `save()`. Additionally for `refresh()` and `clear()` there are versions of these methods that take the object key as a parameter.
@@ -155,6 +155,20 @@ See also:
 - `save()`
 - [`Multiplexer`](#multiplexer)
 - [`MuxRepository`](#mux-repository)
+
+
+More detailed descriptions on each method can be found in the source file [MultiplexerMap.swift](AsyncMux/Sources/MultiplexerMap.swift).
+
+
+<a name="mux-repository"></a>
+## MuxRepository
+
+`MuxRepository` is a global actor-singleton that can be used for centralized operations such as `clearAll()` and `saveAll()` on all multiplexer/downloader instances in your app. You should register each instance using the `register()` method on each multiplexer or downloader instance. Note that MuxRepository retains the objects, which generally should not be a problem for singletons. Use `unregister()` in case you need to release an instance previously registered with the repository.
+
+By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store objects on disk. If you want to keep the objects to ensure they can survive app reboots, make sure you call `MuxRepository.shared.saveAll()` when the app is sent to background, [like shown in the Demo app](AsyncMuxDemo/AsyncMuxDemo/AsyncMuxDemoApp.swift).
+
+`MuxRepository.shared.clearAll()` discards all memory and disk objects. This is useful when e.g. the user signs out of your system and you need to make sure no traces are left of data related to a given user in memory or disk.
+
 
 
 Weather API used in the demo app: [Open Meteo](https://open-meteo.com/en/docs)
