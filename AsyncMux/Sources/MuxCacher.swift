@@ -9,13 +9,13 @@
 import Foundation
 
 
-public class MuxCacher<Object: Codable> {
+public class MuxCacher {
 
-	public static func load(domain: String, key: String) -> Object? {
-		return try? JSONDecoder().decode(Object.self, from: Data(contentsOf: cacheFileURL(domain: domain, key: key, create: false)))
+	public static func load<T: Decodable>(domain: String, key: String, type: T.Type) -> T? {
+		return try? JSONDecoder().decode(type, from: Data(contentsOf: cacheFileURL(domain: domain, key: key, create: false)))
 	}
 
-	public static func save(_ result: Object, domain: String, key: String) {
+	public static func save<T: Encodable>(_ result: T, domain: String, key: String) {
 		try! JSONEncoder().encode(result).write(to: cacheFileURL(domain: domain, key: key, create: true), options: .atomic)
 	}
 

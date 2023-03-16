@@ -9,7 +9,7 @@
 import Foundation
 
 
-/// Asynchronous caching downloader for video, audio or other large media files. Call `AsyncMedia.shared.request(url:)` to retrieve the local file path of the cached object. The result is a file URL. Use the `AsyncMedia.shared` actor-singleton in your app.
+/// Asynchronous caching downloader for video, audio or other large media files. Call `AsyncMedia.shared.request(url:)` to retrieve the local file path of the cached object. The result is a file URL.
 @globalActor
 public actor AsyncMedia {
 

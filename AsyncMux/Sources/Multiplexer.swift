@@ -41,7 +41,7 @@ public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 	/// Performs a request either by calling the `onFetch` block supplied in the multiplexer's constructor, or by returning the previously cached object, if available. Multiple simultaneous calls to `request()` are handled by the Multiplexer so that only one `onFetch` operation can be invoked at a time, but all callers of `request()` will eventually receive the result.
 	///
 	public func request() async throws -> T {
-		return try await fetcher.request(cacher: cacher, domain: muxRootDomain, key: cacheKey) { [self] in
+		return try await fetcher.request(domain: muxRootDomain, key: cacheKey) { [self] in
 			try await onFetch()
 		}
 	}
@@ -58,7 +58,7 @@ public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 	/// Writes the previously cached object to disk.
 	public func save() {
 		if fetcher.isDirty, let storedValue = fetcher.storedValue {
-			cacher.save(storedValue, domain: muxRootDomain, key: cacheKey)
+			MuxCacher.save(storedValue, domain: muxRootDomain, key: cacheKey)
 			fetcher.isDirty = false
 		}
 	}
@@ -69,11 +69,10 @@ public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
 	/// Clears the memory and disk caches. Will trigger a full fetch on the next `request()` call.
 	public func clear() {
-		cacher.delete(domain: muxRootDomain, key: cacheKey)
+		MuxCacher.delete(domain: muxRootDomain, key: cacheKey)
 		clearMemory()
 	}
 
-	private let cacher = MuxCacher<T>.self
 	private let onFetch: OnFetch
 	private var fetcher = _MuxFetcher<String, T>()
 }
@@ -107,7 +106,7 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 	///
 	public func request(key: K) async throws -> T {
 		let fetcher = fetcherForKey(key)
-		return try await fetcher.request(cacher: cacher, domain: cacheKey, key: key) { [self] in
+		return try await fetcher.request(domain: cacheKey, key: key) { [self] in
 			try await onKeyFetch(key)
 		}
 	}
@@ -136,7 +135,7 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 	public func save() {
 		fetcherMap.forEach { key, fetcher in
 			if fetcher.isDirty, let storedValue = fetcher.storedValue {
-				cacher.save(storedValue, domain: cacheKey, key: String(key))
+				MuxCacher.save(storedValue, domain: cacheKey, key: String(key))
 				fetcher.isDirty = false
 			}
 		}
@@ -152,17 +151,16 @@ public actor MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxRepositoryProt
 
 	/// Clears the memory and disk caches for an object with a given `key`. Will trigger a full fetch on the next `request(key:)` call.
 	public func clear(key: K) {
-		cacher.delete(domain: cacheKey, key: String(key))
+		MuxCacher.delete(domain: cacheKey, key: String(key))
 		clearMemory(key: key)
 	}
 
 	/// Clears the memory and disk caches all objects in this `MultiplexerMap`. Will trigger a full fetch on the next `request(key:)` call.
 	public func clear() {
-		cacher.deleteDomain(cacheKey)
+		MuxCacher.deleteDomain(cacheKey)
 		clearMemory()
 	}
 
-	private let cacher = MuxCacher<T>.self
 	private let onKeyFetch: OnKeyFetch
 	private var fetcherMap: [K: _MuxFetcher<K, T>] = [:]
 
@@ -190,12 +188,12 @@ final private class _MuxFetcher<K: MuxKey, T: Codable & Sendable> {
 	private var task: Task<T, Error>?
 	private var completionTime: TimeInterval = 0
 
-	func request(cacher: MuxCacher<T>.Type, domain: String, key: K, onFetch: @escaping OnFetch) async throws -> T {
+	func request(domain: String, key: K, onFetch: @escaping OnFetch) async throws -> T {
 		if !refreshFlag, !isExpired(ttl: defaultTTL) {
 			if let storedValue {
 				return storedValue
 			}
-			else if let cachedValue = cacher.load(domain: domain, key: String(key)) {
+			else if let cachedValue = MuxCacher.load(domain: domain, key: String(key), type: T.self) {
 				storedValue = cachedValue
 				return cachedValue
 			}
@@ -210,7 +208,7 @@ final private class _MuxFetcher<K: MuxKey, T: Codable & Sendable> {
 					return try await onFetch()
 				}
 				catch {
-					if error.isSilencable, let cachedValue = storedValue ?? cacher.load(domain: domain, key: String(key)) {
+					if error.isSilencable, let cachedValue = storedValue ?? MuxCacher.load(domain: domain, key: String(key), type: T.self) {
 						return cachedValue
 					}
 					throw error
