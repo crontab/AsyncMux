@@ -189,7 +189,7 @@ final private class _MuxFetcher<K: MuxKey, T: Codable & Sendable> {
 	private var completionTime: TimeInterval = 0
 
 	func request(domain: String, key: K, onFetch: @escaping OnFetch) async throws -> T {
-		if !refreshFlag, !isExpired(ttl: defaultTTL) {
+		if !refreshFlag, !isExpired {
 			if let storedValue {
 				return storedValue
 			}
@@ -232,12 +232,12 @@ final private class _MuxFetcher<K: MuxKey, T: Codable & Sendable> {
 		}
 	}
 
-	func isExpired(ttl: TimeInterval) -> Bool {
-		Date().timeIntervalSinceReferenceDate > completionTime + ttl
-	}
-
 	func clearMemory() {
 		completionTime = 0
 		storedValue = nil
+	}
+
+	private var isExpired: Bool {
+		Date().timeIntervalSinceReferenceDate > completionTime + defaultTTL
 	}
 }
