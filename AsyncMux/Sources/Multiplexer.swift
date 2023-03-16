@@ -17,7 +17,7 @@ private let muxRootDomain = "_Root.Domain"
 // MARK: - Multiplexer
 
 ///
-/// `Multiplexer<T>` is an asynchronous, callback-based caching facility for client apps. Each multiplxer instance can manage retrieval and caching of one object of type `T: Codable & Sendable`, therefore it is best to define each multiplexer instance in your app as a singleton.
+/// `Multiplexer<T>` is an asynchronous caching facility for client apps. Each multiplxer instance can manage retrieval and caching of one object of type `T: Codable & Sendable`, therefore it is best to define each multiplexer instance in your app as a singleton.
 /// For each multiplexer singleton you define a block that implements asynchronous retrieval of the object, which in your app will likely be a network request, e.g. to your backend system.
 /// See README.md for a more detailed discussion.
 ///

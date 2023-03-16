@@ -56,7 +56,7 @@ public actor AsyncMedia {
 
 	private var taskMap: [URL: Task<Void, Error>] = [:]
 
-	private static let sharedSession = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
+	private static let sharedSession = URLSession(configuration: .ephemeral)
 
 	private static func cacheFileURLFor(url: URL, createDir: Bool) -> URL {
 		cacheDirURL(create: createDir).appendingPathComponent(url.toFileSystemSafeString())

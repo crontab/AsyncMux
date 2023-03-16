@@ -43,7 +43,7 @@ extension URLRequest {
 	}
 
 
-	static let sharedSession = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
+	static let sharedSession = URLSession(configuration: .ephemeral)
 }
 
 
