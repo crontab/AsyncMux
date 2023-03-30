@@ -25,13 +25,13 @@ Here are the scenarios that are covered by the Multiplexer utilities:
 
 Additionally, provide caching of the result in memory for a certain period of time. Subsequent calls to this multiplexer may return the cached result unless some time-to-live (TTL) elapses, in which case a new network call is made transparently.
 
-This multiplexer can be configured to use disk caching in addition to memory caching. Another possibility is to have this multiplexer return a previously known result regardless of its TTL if the latest network call resulted in one of the specific types of failures, such as network connectivity errors.
+A multiplexer can be configured to use disk caching in addition to memory caching. Another possibility is to have a multiplexer return a previously known result regardless of its TTL if the latest network call resulted in one of the specific types of failures, such as network connectivity errors.
 
 Support "soft" and "hard" refreshes, like the browser's Cmd-R and related functions.
 
 **Scenario 2:** have a dictionary of multiplexers that request and cache objects of the same type by their symbolic ID, e.g. user profiles.
 
-**Scenario 3:** provide file downloading, multiplexing and disk caching. In addition to disk caching, some limited number of media objects can be cached in memory for faster access.
+**Scenario 3:** provide file downloading, multiplexing and disk caching for immutable objects, such as media files or documents.
 
 
 <a name="multiplexer"></a>
@@ -65,7 +65,7 @@ Or even shorter:
 let myProfile = Multiplexer(onFetch: Backend.fetchMyProfile)
 ```
 
-You can use `myProfile` to fetch the profile object by calling the `request()` method like so:
+Now you can use `myProfile` to fetch the profile object by calling the `request()` method like so:
 
 ```swift
 try {
@@ -162,15 +162,15 @@ See also:
 - [`MuxRepository`](#mux-repository)
 
 
-More detailed descriptions on each method can be found in the source file [MultiplexerMap.swift](AsyncMux/Sources/MultiplexerMap.swift).
+More detailed descriptions on each method can be found in the source file [Multiplexer.swift](AsyncMux/Sources/Multiplexer.swift).
 
 
 <a name="mux-repository"></a>
 ## MuxRepository
 
-`MuxRepository` is a global actor-singleton that can be used for centralized operations such as `clearAll()` and `saveAll()` on all multiplexer/downloader instances in your app. You should register each instance using the `register()` method on each multiplexer or downloader instance. Note that MuxRepository retains the objects, which generally should not be a problem for singletons. Use `unregister()` in case you need to release an instance previously registered with the repository.
+`MuxRepository` is a global actor-singleton that can be used for centralized operations such as `clearAll()` and `saveAll()` on all multiplexer instances in your app. You should register each instance using the `register()` method on each multiplexer instance. Note that MuxRepository retains the objects, which generally should not be a problem for singletons. Use `unregister()` in case you need to release an instance previously registered with the repository.
 
-By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store objects on disk. If you want to keep the objects to ensure they can survive app reboots, make sure you call `MuxRepository.shared.saveAll()` when the app is sent to background, [like shown in the Demo app](AsyncMuxDemo/AsyncMuxDemo/AsyncMuxDemoApp.swift).
+By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store objects on disk. If you want to keep the objects to ensure they survive app reboots, make sure you call `MuxRepository.shared.saveAll()` when the app is sent to background, [like shown in the Demo app](AsyncMuxDemo/AsyncMuxDemo/AsyncMuxDemoApp.swift).
 
 `MuxRepository.shared.clearAll()` discards all memory and disk objects. This is useful when e.g. the user signs out of your system and you need to make sure no traces are left of data related to a given user in memory or disk.
 
