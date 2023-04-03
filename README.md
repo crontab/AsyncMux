@@ -17,7 +17,7 @@
 <a name="intro"></a>
 ## 1. Introduction
 
-The Swift AsyncMux utility suite provides a browser-like request/caching layer for network objects, based on Swift's Sutrctured Concurrency (`async/await`) and partly callbacks.
+The Swift AsyncMux utility suite provides a browser-like request/caching layer for network objects, based on Swift's Structured Concurrency (`async/await`) and partly callbacks.
 
 Here are the scenarios that are covered by the Multiplexer utilities:
 
