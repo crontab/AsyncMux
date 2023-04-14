@@ -80,6 +80,7 @@
 				3697D0FA296B76C100FE3B76 /* Frameworks */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		36FB700D296A10F90006ACBA /* Products */ = {
 			isa = PBXGroup;

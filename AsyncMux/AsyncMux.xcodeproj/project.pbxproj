@@ -47,6 +47,7 @@
 				362CC58B29746BE900059933 /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		362CC58B29746BE900059933 /* Products */ = {
 			isa = PBXGroup;
