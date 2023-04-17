@@ -10,25 +10,20 @@ import SwiftUI
 import AsyncMux
 
 
+private let backgroundURL = URL(string: "https://images.unsplash.com/photo-1513051265668-0ebab31671ae")!
+
+
 struct ContentView: View {
 
     @State var items: [WeatherItem] = []
     @State var isLoading: Bool = false
-    @State var backgroundImage: Image?
 
     var body: some View {
-        ZStack {
-            backgroundImageView()
-            listView()
-        }
-        .preferredColorScheme(.dark)
+        listView()
+            .background(backgroundImageView())
+            .preferredColorScheme(.dark)
 
         .serverTask(withAlert: true) {
-            Task {
-                // NOTE: errors thrown here are ignored by the Task (this is by design according to Apple)
-                let imageURL = try await AsyncMedia.shared.request(url: URL(string: "https://images.unsplash.com/photo-1513051265668-0ebab31671ae")!)
-                backgroundImage = UIImage(contentsOfFile: imageURL.path).map { Image(uiImage: $0) }
-            }
             items = try await WeatherAPI.reload(refresh: false)
         }
 
@@ -61,19 +56,14 @@ struct ContentView: View {
         }
     }
 
-    @ViewBuilder
     private func backgroundImageView() -> some View {
-        GeometryReader { proxy in
-            if let backgroundImage {
-                backgroundImage
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .ignoresSafeArea()
-                    .frame(width: proxy.size.width, height: proxy.size.height)
-            }
-            else {
-                Color(UIColor.systemBackground)
-            }
+        RemoteImage(url: backgroundURL) { image in
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .ignoresSafeArea()
+        } placeholder: {
+            Color(UIColor.systemBackground)
         }
     }
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3606A39529EDACB8002E8878 /* RemoteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3606A39429EDACB8002E8878 /* RemoteImage.swift */; };
 		360EBA4E296A2C10001EC729 /* WeatherAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360EBA4D296A2C10001EC729 /* WeatherAPI.swift */; };
 		360EBA56296A5388001EC729 /* ErrorAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360EBA55296A5388001EC729 /* ErrorAlert.swift */; };
 		360EBA58296A5C7E001EC729 /* ServerTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360EBA57296A5C7E001EC729 /* ServerTask.swift */; };
@@ -36,6 +37,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3606A39429EDACB8002E8878 /* RemoteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
 		360EBA4C296A2AA9001EC729 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		360EBA4D296A2C10001EC729 /* WeatherAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAPI.swift; sourceTree = "<group>"; };
 		360EBA55296A5388001EC729 /* ErrorAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorAlert.swift; sourceTree = "<group>"; };
@@ -99,6 +101,7 @@
 				360EBA4D296A2C10001EC729 /* WeatherAPI.swift */,
 				360EBA55296A5388001EC729 /* ErrorAlert.swift */,
 				360EBA57296A5C7E001EC729 /* ServerTask.swift */,
+				3606A39429EDACB8002E8878 /* RemoteImage.swift */,
 				36FB7011296A10F90006ACBA /* ContentView.swift */,
 				36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */,
 				36FB7013296A10FB0006ACBA /* Assets.xcassets */,
@@ -190,6 +193,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3606A39529EDACB8002E8878 /* RemoteImage.swift in Sources */,
 				36FB7020296A14400006ACBA /* AppError.swift in Sources */,
 				36FB7012296A10F90006ACBA /* ContentView.swift in Sources */,
 				360EBA56296A5388001EC729 /* ErrorAlert.swift in Sources */,
