@@ -17,7 +17,7 @@ let package = Package(
         .target(
             name: "AsyncMux",
             dependencies: [],
-            path: "Sources"
+            path: "AsyncMux/Sources"
         ),
     ]
 )

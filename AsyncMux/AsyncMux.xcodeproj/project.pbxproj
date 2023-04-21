@@ -25,7 +25,6 @@
 		3635172929746D2600F9B045 /* MuxCacher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MuxCacher.swift; sourceTree = "<group>"; };
 		3635172A29746D2600F9B045 /* MuxRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MuxRepository.swift; sourceTree = "<group>"; };
 		36E20F2E298215640022D151 /* Multiplexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Multiplexer.swift; sourceTree = "<group>"; };
-		36F7322B297AE3850019807B /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,7 +41,6 @@
 		362CC58029746BE900059933 = {
 			isa = PBXGroup;
 			children = (
-				36F7322B297AE3850019807B /* Package.swift */,
 				362CC58C29746BE900059933 /* Sources */,
 				362CC58B29746BE900059933 /* Products */,
 			);
