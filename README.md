@@ -28,9 +28,7 @@ A multiplexer can be configured to use disk caching in addition to memory cachin
 
 Support "soft" and "hard" refreshes, like the browser's Cmd-R and related functions.
 
-**Scenario 2:** have a dictionary of multiplexers that request and cache objects of the same type by their symbolic ID, e.g. user profiles.
-
-**Scenario 3:** provide file downloading, multiplexing and disk caching for immutable objects, such as media files or documents.
+**Scenario 2:** provide file downloading, multiplexing and disk caching for immutable objects, such as media files or documents.
 
 
 <a name="multiplexer"></a>
