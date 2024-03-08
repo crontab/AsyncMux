@@ -70,7 +70,7 @@ public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
     }
 
     private let onFetch: OnFetch
-    private var fetcher = _MuxFetcher<String, T>()
+    private let fetcher = _MuxFetcher<String, T>()
 }
 
 

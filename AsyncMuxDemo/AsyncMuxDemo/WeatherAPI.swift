@@ -70,7 +70,7 @@ class WeatherAPI {
             do {
                 // Even though geocodeAddressString() has an async version, we use callback and continuation to silence Swift's strict concurrency checking warnings
                 let place = try await withCheckedThrowingContinuation { continuation in
-                    geocoder.geocodeAddressString(name, completionHandler: { placemarks, error in
+                    CLGeocoder().geocodeAddressString(name, completionHandler: { placemarks, error in
                         if let placemark = placemarks?.first?.weatherPlace {
                             continuation.resume(with: .success(placemark))
                         }
@@ -102,9 +102,6 @@ class WeatherAPI {
         }
         return try await WeatherAPI.fetchCurrent(for: coordinate)
     }.register()
-    
-    
-    private static let geocoder = CLGeocoder()
     
     
     private static func fetchCurrent(for location: CLLocationCoordinate2D) async throws -> Weather {
