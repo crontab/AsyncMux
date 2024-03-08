@@ -30,7 +30,7 @@ public actor MuxRepository {
         }
     }
 
-    /// Writes all memory-cached objects to disk for each of the registered multiplexer objects. The default implementations of `Multiplexer<T>` and `MultiplexerMap<T>` use simple file-based JSON caching.
+    /// Writes all memory-cached objects to disk for each of the registered multiplexer objects. The default implementation of `Multiplexer<T>` uses simple file-based JSON caching.
     public func saveAll() async {
         for mux in repo.values {
             await mux.save()
@@ -62,7 +62,7 @@ public actor MuxRepository {
 
 public extension MuxRepositoryProtocol {
 
-    /// Register a `Multiplexer` or `MultiplexerMap` object with the global repository for subsequent use in `clearAll()` and `saveAll()` operations. Note that `MuxRepository` retains the object, which means that for non-singleton multiplexer objects `unregister()` should be called prior to freeing it.
+    /// Register a `Multiplexer` object with the global repository for subsequent use in `clearAll()` and `saveAll()` operations. Note that `MuxRepository` retains the object, which means that for non-singleton multiplexer objects `unregister()` should be called prior to freeing it.
     @discardableResult
     func register() -> Self {
         Task {
@@ -71,7 +71,7 @@ public extension MuxRepositoryProtocol {
         return self
     }
 
-    /// Unregister a `Multiplexer` or `MultiplexerMap` object from the global repository `MuxRepository`. Not required for singleton multiplexers.
+    /// Unregister a `Multiplexer` object from the global repository `MuxRepository`. Not required for singleton multiplexers.
     func unregister() {
         Task {
             await MuxRepository.shared.unregister(mux: self)
