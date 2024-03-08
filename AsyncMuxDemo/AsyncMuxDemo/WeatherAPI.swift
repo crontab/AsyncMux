@@ -13,59 +13,41 @@ import AsyncMux
 struct WeatherPlace: Codable, Hashable {
     let city: String
     let countryCode: String
-    let lat: String
-    let lon: String
-    
-    var key: String {
-        "\(lat),\(lon)"
-    }
+    let lat: CLLocationDegrees
+    let lon: CLLocationDegrees
 }
 
 
 struct Weather: Codable, Hashable {
-    
+
     struct Details: Codable, Hashable {
         let temperature: Double
         let weathercode: Int
     }
-    
+
     let currentWeather: Details
 }
 
 
-struct WeatherItem: Hashable {
+struct WeatherItem: Hashable, Codable {
     var place: WeatherPlace
     var weather: Weather?
 }
 
 
 class WeatherAPI {
-    
+
     static let placeNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Tokyo, JP"]
-    
-    
+
     static func reload(refresh: Bool) async throws -> [WeatherItem] {
-        let tasks = try await WeatherAPI.places
-            .refresh(refresh)
-            .request()
-            .map { place in
-                Task {
-                    try await WeatherItem(place: place, weather: WeatherAPI.weather
-                        .refresh(refresh)
-                        .request(key: place.key))
-                }
-            }
-        var items: [WeatherItem] = []
-        for task in tasks {
-            try await items.append(task.value)
-        }
-        return items
+        try await places.refresh(refresh).request()
     }
-    
-    
-    private static let places = Multiplexer {
+
+
+    private static let places = Multiplexer<[WeatherItem]> {
+        var places: [WeatherPlace] = []
+
         // Geocoding requests should be performed one at a time, hence the loop
-        var result: [WeatherPlace] = []
         for name in placeNames {
             do {
                 // Even though geocodeAddressString() has an async version, we use callback and continuation to silence Swift's strict concurrency checking warnings
@@ -82,7 +64,7 @@ class WeatherAPI {
                         }
                     })
                 }
-                result.append(place)
+                places.append(place)
             }
             catch {
                 // When there's no connection CoreLocation returns the below error; we convert it to a silencable one
@@ -92,39 +74,33 @@ class WeatherAPI {
                 throw error
             }
         }
-        return result
-    }.register()
-    
-    
-    private static let weather = MultiplexerMap { key in
-        guard let coordinate = CLLocationCoordinate2D(string: key) else {
-            throw AppError.unknown
+
+        // Now request weather for those places concurrently
+        let tasks = places
+            .map { place in
+                Task {
+                    try await WeatherItem(place: place, weather: fetchCurrent(lat: place.lat, lon: place.lon))
+                }
+            }
+        var items: [WeatherItem] = []
+        for task in tasks {
+            try await items.append(task.value)
         }
-        return try await WeatherAPI.fetchCurrent(for: coordinate)
+
+        return items
     }.register()
-    
-    
-    private static func fetchCurrent(for location: CLLocationCoordinate2D) async throws -> Weather {
-        try await URLRequest(getURL: URL(string: "https://api.open-meteo.com/v1/forecast?latitude=\(location.latitude)&longitude=\(location.longitude)&current_weather=true")!)
+
+
+    private static func fetchCurrent(lat: Double, lon: Double) async throws -> Weather {
+        try await URLRequest(getURL: URL(string: "https://api.open-meteo.com/v1/forecast?latitude=\(lat)&longitude=\(lon)&current_weather=true")!)
             .perform(type: Weather.self)
     }
 }
 
 
 private extension CLPlacemark {
-    
+
     var weatherPlace: WeatherPlace {
-        WeatherPlace(city: locality ?? name ?? "-", countryCode: isoCountryCode ?? "-", lat: String(location?.coordinate.latitude ?? 0), lon: String(location?.coordinate.longitude ?? 0))
-    }
-}
-
-
-private extension CLLocationCoordinate2D {
-    
-    init?(string: String) {
-        let a = string.split(separator: ",")
-        guard a.count == 2 else { return nil }
-        guard let lat = Double(a[0]), let lon = Double(a[1]) else { return nil }
-        self.init(latitude: lat, longitude: lon)
+        WeatherPlace(city: locality ?? name ?? "-", countryCode: isoCountryCode ?? "-", lat: location?.coordinate.latitude ?? 0, lon: location?.coordinate.longitude ?? 0)
     }
 }
