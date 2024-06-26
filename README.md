@@ -130,6 +130,8 @@ The download process is based on streaming, which means memory used by each down
 
 Each file you request using `AsyncMedia.shared.request(url:)` is downloaded and stored locally in the app's cache directory; the local file URL is then returned asynchronously. Subsequent calls to `request(url:)` for the same URL will return the local file URL immediately.
 
+Use `cachedValue(url:)` to get the local file URL of a cached object, if available. This can be useful when you want to avoid flickering effects in the UI (see `RemoteImage.swft` in the demo app).
+
 Note that the remote files are assumed to be immutable, and therefore no time-to-live is maintained, i.e. it is assumed that the file can be stored in the local cache indefinitely. Note also that the OS can wipe the app's cache directory if it needs to free space.
 
 Even though the latest iOS versions provide the `AsyncImage` interface, but for the sake of an example suppose you need to download an image and display it as the background image for your view. An example of how this can be done is [shown in the demo app](AsyncMuxDemo/AsyncMuxDemo/ContentView.swift).

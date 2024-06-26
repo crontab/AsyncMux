@@ -17,6 +17,10 @@ public actor AsyncMedia {
 
     /// Requests an immutable remote file. The file will be stored in the app's cache directory and the URL returned to the caller asynchronously. For each URL, multiple simultaneous network requests are merged into one request. For subsequent requests a local file URL will be returned immediately. Note that the cached files can be removed by the OS at any time to free disk space, but only when the app is not running.
     public func request(url: URL) async throws -> URL {
+        if url.isFileURL {
+            return url
+        }
+
         let cachedURL = Self.cacheFileURLFor(url: url, createDir: true)
 
         if FileManager.default.fileExists(cachedURL) {
@@ -47,6 +51,15 @@ public actor AsyncMedia {
             taskMap.removeValue(forKey: url)
             throw error
         }
+    }
+
+    /// Returns a local file URL for a cached object, if it exists
+    public static func cachedValue(url: URL) -> URL? {
+        let cachedURL = cacheFileURLFor(url: url, createDir: true)
+        if FileManager.default.fileExists(cachedURL) {
+            return cachedURL
+        }
+        return nil
     }
 
     /// Clears all files cached via `AsyncMedia.shared.request(url:)`.
