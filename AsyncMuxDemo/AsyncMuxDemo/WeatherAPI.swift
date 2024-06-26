@@ -37,7 +37,7 @@ struct WeatherItem: Hashable, Codable {
 
 class WeatherAPI {
 
-    static let placeNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Tokyo, JP"]
+    static let placeNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Yerevan, AM", "Tokyo, JP"]
 
     static func reload(refresh: Bool) async throws -> [WeatherItem] {
         try await places.refresh(refresh).request()
