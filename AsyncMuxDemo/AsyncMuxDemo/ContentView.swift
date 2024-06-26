@@ -62,7 +62,7 @@ struct ContentView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .ignoresSafeArea()
-        } placeholder: {
+        } placeholder: { _ in
             Color(UIColor.systemBackground)
         }
     }
