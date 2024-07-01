@@ -10,6 +10,9 @@ import SwiftUI
 import AsyncMux
 
 
+// TODO: a function to add a custom location by city name
+
+
 private let backgroundURL = URL(string: "https://images.unsplash.com/photo-1513051265668-0ebab31671ae")!
 
 
@@ -69,11 +72,9 @@ struct ContentView: View {
 }
 
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView(items: [
-            .init(place: .init(city: "London", countryCode: "GB", lat: 51.51, lon: -0.13), weather: .init(currentWeather: .init(temperature: 8.1, weathercode: 2))),
-            .init(place: .init(city: "Paris", countryCode: "FR", lat: 48.84, lon: 2.36), weather: .init(currentWeather: .init(temperature: 10.2, weathercode: 3)))
-        ])
-    }
+#Preview {
+    ContentView(items: [
+        .init(place: .init(city: "London", countryCode: "GB", lat: 51.51, lon: -0.13), weather: .init(currentWeather: .init(temperature: 8.1, weathercode: 2))),
+        .init(place: .init(city: "Paris", countryCode: "FR", lat: 48.84, lon: 2.36), weather: .init(currentWeather: .init(temperature: 10.2, weathercode: 3)))
+    ])
 }

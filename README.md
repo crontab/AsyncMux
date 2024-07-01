@@ -1,8 +1,6 @@
 # AsyncMux
 ### Asnychronous multiplexer utilities with caching for Swift
 
-*This is an evolution of the older [Multiplexer library](https://github.com/crontab/Multiplexer), now refactored under Swift's structured concurrency.*
-
 #### Table of contents
 
 - [Introduction](#intro)
@@ -28,7 +26,7 @@ A multiplexer can be configured to use disk caching in addition to memory cachin
 
 Support "soft" and "hard" refreshes, like the browser's Cmd-R and related functions.
 
-**Scenario 2:** provide file downloading, multiplexing and disk caching for immutable objects, such as media files or documents.
+**Scenario 2:** provide file downloading, multiplexing and disk caching for immutable objects, such as media files and documents.
 
 
 <a name="multiplexer"></a>
@@ -124,17 +122,20 @@ By default, the `Multiplexer` interface doesn't store objects on disk. If you wa
 
 `AsyncMedia` is a global actor-singleton that provides downloading, multiplexing and caching facility for arbitrary large files that are considered immutable.
 
-Like with other multiplexers, `AsyncMedia` ensures that *for each remote URL* only one download process is active regrdless of the number of times the `request(url:)` was called simultaneously.
+Like with other multiplexers, `AsyncMedia` ensures that for each remote URL only one download process is active regrdless of the number of times the `request(url:)` was called simultaneously.
 
 The download process is based on streaming, which means memory used by each download process is fixed and doesn't depend on the file size.
 
 Each file you request using `AsyncMedia.shared.request(url:)` is downloaded and stored locally in the app's cache directory; the local file URL is then returned asynchronously. Subsequent calls to `request(url:)` for the same URL will return the local file URL immediately.
 
-Use `cachedValue(url:)` to get the local file URL of a cached object, if available. This can be useful when you want to avoid flickering effects in the UI (see `RemoteImage.swft` in the demo app).
+Use `cachedValue(url:)` to get the local file URL of a cached object, if available.
 
 Note that the remote files are assumed to be immutable, and therefore no time-to-live is maintained, i.e. it is assumed that the file can be stored in the local cache indefinitely. Note also that the OS can wipe the app's cache directory if it needs to free space.
 
 Even though the latest iOS versions provide the `AsyncImage` interface, but for the sake of an example suppose you need to download an image and display it as the background image for your view. An example of how this can be done is [shown in the demo app](AsyncMuxDemo/AsyncMuxDemo/ContentView.swift).
+
+The demo app also includes a complete package for in-memory LRU caching of images backed by `AsyncMedia`, as well as the `RemoteImage` component that uses both ([see here](AsyncMuxDemo/AsyncMuxDemo/RemoteImage)).
+
 
 <a name="building"></a>
 ## Building and linking
