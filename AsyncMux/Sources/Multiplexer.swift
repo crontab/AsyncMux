@@ -3,6 +3,7 @@
 //  AsyncMux
 //
 //  Created by Hovik Melikyan on 26/01/2023.
+//  Copyright © 2023 Hovik Melikyan. All rights reserved.
 //
 
 import Foundation
