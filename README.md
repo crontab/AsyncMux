@@ -36,13 +36,15 @@ Support "soft" and "hard" refreshes, like the browser's Cmd-R and related functi
 
 For each multiplexer singleton you define a block that implements asynchronous retrieval of an object, which may be e.g. a network request to your backend system.
 
-A multiplexer singleton guarantees that there will only be one fetch/retrieval operation made, and that subsequently a memory-cached object will be returned to the callers of its `request()` method , unless the cached object expires according to the `timeToLive` setting (defaults to 30 minutes). Additionally, Multiplexer can store the object on disk - see [`MuxRepository`](#mux-repository) and also the discussion on `request()` below.
+A multiplexer singleton guarantees that there will only be one fetch/retrieval operation made, and that subsequently a memory-cached object will be returned to the callers of its `request()` method , unless the cached object expires according to the `defaultTTL` setting (currently set to 30 minutes). Additionally, Multiplexer can store the object on disk - see [`MuxRepository`](#mux-repository) and also the discussion on `request()` below.
 
 Suppose you have a `UserProfile` structure and a method for retrieving the current user's profile object from the backend, whose signature looks like this:
 
 ```swift
 class Backend {
-    static func fetchMyProfile() async throws -> UserProfile
+    static func fetchMyProfile() async throws -> UserProfile {
+        // ...
+    }
 }
 ```
 
@@ -50,7 +52,7 @@ Then an instantiation of a multiplexer singleton will look like:
 
 ```swift
 let myProfile = Multiplexer<UserProfile>(onFetch: {
-    return try await Backend.fetchMyProfile()
+    try await Backend.fetchMyProfile()
 })
 ```
 
@@ -80,19 +82,21 @@ Most importantly, `request()` can handle multiple simultaneous calls and ensures
 By default, `Multiplexer<T>` can store objects as JSON files in the local cache directory. This is done by explicitly calling `save()` on the multiplexer object, or alternatively `saveAll()` on the global repository `MuxRepository` if the multiplexer object is registered there. Registration can be done like so:
     
 ```swift
-let myProfile = Multiplexer<UserProfile> {
-    return try await Backend.fetchMyProfile()
+let myProfile = Multiplexer<UserProfile>(cacheKey: "MyProfile") {
+    try await Backend.fetchMyProfile()
 }
 .register()
 ```
 
-The objects stored on disk can be reused if your `onFetch` fails due to a connectivity problem. You can additionally tell the multiplexer to ignore the error and fetch the cached object by throwing a `SilencableError` in your `onFetch` method.
-    
-For the memory cache, the expiration logic is defined by a global constant `timeToLive`, which defaults to 30 minutes (currently not overridable - to be changed later). The storage method is also hardcoded but will be possible to override in the future releases.
+Notice the argument `cacheKey:` in multiplexer's constructor: this is necessary for storing the object on disk (although optional if you don't use disk caching). 
+
+The objects stored on disk can be reused by the multiplexer even after TTL expires if your `onFetch` fails due to a connectivity problem. You can additionally tell the multiplexer to ignore the error and fetch the cached object by throwing a `SilencableError` in your `onFetch` method.
+
+The disk storage method is currently hardcoded but will be possible to override in the future releases of the library.
 
 At run time, you can invalidate the cached object using one of the following methods:
 
-- "Soft refresh": chain the `refresh()` method with a call to `request()`: the multiplexer will attempt to fetch the object again, but will not discard the existing cached objects in memory or on disk. In case of a silencable error the older cached object will be used again as a result.
+- "Soft refresh": chain the `refresh()` method with a call to `request()`: the multiplexer will attempt to fetch the object again, but will not discard the existing cached objects in memory or on disk. In case of a silencable error (i.e. connectivity issue) the older cached object will be used again as a result.
 - "Hard refresh": call `clear()` to discard both memory and disk caches for a given object. The next call to `request()` will attempt to fetch the object and will fail in case of an error.
 
 See also:
