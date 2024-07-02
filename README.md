@@ -5,6 +5,7 @@
 
 - [Introduction](#intro)
 - [Multiplexer](#multiplexer)
+- [MultiplexerMap](#multiplexer-map)
 - [MuxRepository](#mux-repository)
 - [AsyncMedia](#media-downloader)
 - [Building and linking](#building)
@@ -36,13 +37,15 @@ Support "soft" and "hard" refreshes, like the browser's Cmd-R and related functi
 
 For each multiplexer singleton you define a block that implements asynchronous retrieval of an object, which may be e.g. a network request to your backend system.
 
-A multiplexer singleton guarantees that there will only be one fetch/retrieval operation made, and that subsequently a memory-cached object will be returned to the callers of its `request()` method , unless the cached object expires according to the `timeToLive` setting (defaults to 30 minutes). Additionally, Multiplexer can store the object on disk - see [`MuxRepository`](#mux-repository) and also the discussion on `request()` below.
+A multiplexer singleton guarantees that there will only be one fetch/retrieval operation made, and that subsequently a memory-cached object will be returned to the callers of its `request()` method , unless the cached object expires according to the `defaultTTL` setting (currently set to 30 minutes). Additionally, Multiplexer can store the object on disk - see [`MuxRepository`](#mux-repository) and also the discussion on `request()` below.
 
 Suppose you have a `UserProfile` structure and a method for retrieving the current user's profile object from the backend, whose signature looks like this:
 
 ```swift
 class Backend {
-    static func fetchMyProfile() async throws -> UserProfile
+    static func fetchMyProfile() async throws -> UserProfile {
+        // ...
+    }
 }
 ```
 
@@ -50,7 +53,7 @@ Then an instantiation of a multiplexer singleton will look like:
 
 ```swift
 let myProfile = Multiplexer<UserProfile>(onFetch: {
-    return try await Backend.fetchMyProfile()
+    try await Backend.fetchMyProfile()
 })
 ```
 
@@ -80,19 +83,21 @@ Most importantly, `request()` can handle multiple simultaneous calls and ensures
 By default, `Multiplexer<T>` can store objects as JSON files in the local cache directory. This is done by explicitly calling `save()` on the multiplexer object, or alternatively `saveAll()` on the global repository `MuxRepository` if the multiplexer object is registered there. Registration can be done like so:
     
 ```swift
-let myProfile = Multiplexer<UserProfile> {
-    return try await Backend.fetchMyProfile()
+let myProfile = Multiplexer<UserProfile>(cacheKey: "MyProfile") {
+    try await Backend.fetchMyProfile()
 }
 .register()
 ```
 
-The objects stored on disk can be reused if your `onFetch` fails due to a connectivity problem. You can additionally tell the multiplexer to ignore the error and fetch the cached object by throwing a `SilencableError` in your `onFetch` method.
-    
-For the memory cache, the expiration logic is defined by a global constant `timeToLive`, which defaults to 30 minutes (currently not overridable - to be changed later). The storage method is also hardcoded but will be possible to override in the future releases.
+Notice the argument `cacheKey:` in multiplexer's constructor: this is necessary for storing the object on disk (although optional if you don't use disk caching). 
+
+The objects stored on disk can be reused by the multiplexer even after TTL expires if your `onFetch` fails due to a connectivity problem. You can additionally tell the multiplexer to ignore the error and fetch the cached object by throwing a `SilencableError` in your `onFetch` method.
+
+The disk storage method is currently hardcoded but will be possible to override in the future releases of the library.
 
 At run time, you can invalidate the cached object using one of the following methods:
 
-- "Soft refresh": chain the `refresh()` method with a call to `request()`: the multiplexer will attempt to fetch the object again, but will not discard the existing cached objects in memory or on disk. In case of a silencable error the older cached object will be used again as a result.
+- "Soft refresh": chain the `refresh()` method with a call to `request()`: the multiplexer will attempt to fetch the object again, but will not discard the existing cached objects in memory or on disk. In case of a silencable error (i.e. connectivity issue) the older cached object will be used again as a result.
 - "Hard refresh": call `clear()` to discard both memory and disk caches for a given object. The next call to `request()` will attempt to fetch the object and will fail in case of an error.
 
 See also:
@@ -102,9 +107,61 @@ See also:
 - `refresh()`
 - `clear()`
 - `save()`
+- [`MultiplexerMap`](#multiplexer-map)
 - [`MuxRepository`](#mux-repository)
 
 More detailed descriptions on each method can be found in the source file [Multiplexer.swift](AsyncMux/Sources/Multiplexer.swift).
+
+
+<a name="multiplexer-map"></a>
+## MultiplexerMap<K, T>
+
+`MultiplexerMap<K, T>` is similar to `Multiplexer<T>` in many ways except it maintains a dictionary of objects of the same type. One example would be e.g. user profile objects in your social app. Internally, a multiplexer map is a dictionary of multiplexers whose code is executed by the same actor.
+
+The `K` generic paramter should conform to `LosslessStringConvertible & Hashable & Sendable`. The string convertibility requirement is because it simplifies the disk cacher's job of storing objects.
+
+The examples given for the Multiplexer above will look as follows. Firstly, suppose you have a method for retrieving a user profile by a user ID:
+
+```swift
+class Backend {
+    static func fetchUserProfile(id: String) async throws -> UserProfile {
+        // ...
+    }
+}
+```
+
+Further, the MultiplexerMap singleton can be defined as follows:
+
+```swift
+let userProfiles = MultiplexerMap(onFetch: Backend.fetchUserProfile)
+```
+
+And used in the app like so:
+
+```swift
+try {
+    let profile = try await userProfiles.request(key: "user_8cJOiRXbugFccrUhmCX2")
+}
+catch {
+    print("Coudn't retrieve user profile:", error)
+}
+```
+
+Like `Multiplexer`, `MultiplexerMap` defines its own methods `refresh()`, `clear()` and `save()`. Additionally for `refresh()` and `clear()` there are versions of these methods that take the object key as a parameter.
+
+Internally `MultiplexerMap` maintains a map of `Multiplexer` objects, meaning that fetching and caching of each object by its ID is done independently.
+
+See also:
+
+- `init(cacheKey: String? = nil, onKeyFetch: @escaping @Sendable (K) async throws -> T)`
+- `request(key: K) async throws -> T`
+- `refresh(key: K)`
+- `clear(key: K)`
+- `refresh()`
+- `clear()`
+- `save()`
+- [`Multiplexer`](#multiplexer)
+- [`MuxRepository`](#mux-repository)
 
 
 <a name="mux-repository"></a>
@@ -112,7 +169,7 @@ More detailed descriptions on each method can be found in the source file [Multi
 
 `MuxRepository` is a global actor-singleton that can be used for centralized operations such as `clearAll()` and `saveAll()` on all multiplexer instances in your app. You should register each instance using the `register()` method on each multiplexer instance. Note that MuxRepository retains the objects, which generally should not be a problem for singletons. Use `unregister()` in case you need to release an instance previously registered with the repository.
 
-By default, the `Multiplexer` interface doesn't store objects on disk. If you want to keep the objects to ensure they survive app reboots, make sure you call `MuxRepository.shared.saveAll()` when the app is sent to background, [like shown in the Demo app](AsyncMuxDemo/AsyncMuxDemo/AsyncMuxDemoApp.swift).
+By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store objects on disk. If you want to keep the objects to ensure they survive app reboots, make sure you call `MuxRepository.shared.saveAll()` when the app is sent to background, [like shown in the Demo app](AsyncMuxDemo/AsyncMuxDemo/AsyncMuxDemoApp.swift).
 
 `MuxRepository.shared.clearAll()` discards all memory and disk objects. This is useful when e.g. the user signs out of your system and you need to make sure no traces are left of data related to a given user in memory or disk.
 

@@ -12,6 +12,11 @@ import Foundation
 private let defaultTTL: TimeInterval = 30 * 60
 private let muxRootDomain = "_Root.Domain"
 
+@globalActor
+public actor MuxActor {
+    public static var shared = MuxActor()
+}
+
 
 // MARK: - Multiplexer
 
@@ -20,7 +25,8 @@ private let muxRootDomain = "_Root.Domain"
 /// For each multiplexer singleton you define a block that implements asynchronous retrieval of the object, which in your app will likely be a network request, e.g. to your backend system.
 /// See README.md for a more detailed discussion.
 ///
-public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
+@MuxActor
+public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     public typealias OnFetch = @Sendable () async throws -> T
 
@@ -29,6 +35,7 @@ public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
     /// Instantiates a `Multiplexer<T>` object with a given `onFetch` block.
     /// - parameter cacheKey (optional): a string to be used as a file name for the disk cache. If omitted, an automatic name is generated based on `T`'s description. NOTE: if you have several  multiplexers whose `T` is the same, you *should* define unique non-conflicting `cacheKey` parameters for each.
     /// - parameter onFetch: an async throwing block that should retrieve an object presumably in an asynchronous manner.
+    nonisolated
     public init(cacheKey: String? = nil, onFetch: @escaping OnFetch) {
         self.cacheKey = cacheKey ?? String(describing: T.self)
         self.onFetch = onFetch
@@ -36,9 +43,7 @@ public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     /// Performs a request either by calling the `onFetch` block supplied in the multiplexer's constructor, or by returning the previously cached object, if available. Multiple simultaneous calls to `request()` are handled by the Multiplexer so that only one `onFetch` operation can be invoked at a time, but all callers of `request()` will eventually receive the result.
     public func request() async throws -> T {
-        return try await request(domain: muxRootDomain, key: cacheKey) { [self] in
-            try await onFetch()
-        }
+        return try await request(domain: muxRootDomain, key: cacheKey)
     }
 
     /// "Soft" refresh: the next call to `request()` will attempt to retrieve the object again, without discarding the caches in case of a failure. `refresh()` does not have an immediate effect on any ongoing asynchronous requests. Can be chained with the subsequent `request()`.
@@ -74,14 +79,14 @@ public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     private let onFetch: OnFetch
 
-    private var storedValue: T?
-    private var isDirty: Bool = false
-    private var refreshFlag: Bool = false
+    internal var storedValue: T?
+    internal var isDirty: Bool = false
+    internal var refreshFlag: Bool = false
 
     private var task: Task<T, Error>?
     private var completionTime: TimeInterval = 0
 
-    private func request(domain: String, key: String, onFetch: @escaping OnFetch) async throws -> T {
+    internal func request(domain: String, key: LosslessStringConvertible) async throws -> T {
         if !refreshFlag, !isExpired {
             if let storedValue {
                 return storedValue
