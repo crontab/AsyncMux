@@ -12,6 +12,11 @@ import Foundation
 private let defaultTTL: TimeInterval = 30 * 60
 private let muxRootDomain = "_Root.Domain"
 
+@globalActor
+public actor MuxActor {
+    public static var shared = MuxActor()
+}
+
 
 // MARK: - Multiplexer
 
@@ -20,7 +25,8 @@ private let muxRootDomain = "_Root.Domain"
 /// For each multiplexer singleton you define a block that implements asynchronous retrieval of the object, which in your app will likely be a network request, e.g. to your backend system.
 /// See README.md for a more detailed discussion.
 ///
-public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
+@MuxActor
+public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     public typealias OnFetch = @Sendable () async throws -> T
 
@@ -29,6 +35,7 @@ public actor Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
     /// Instantiates a `Multiplexer<T>` object with a given `onFetch` block.
     /// - parameter cacheKey (optional): a string to be used as a file name for the disk cache. If omitted, an automatic name is generated based on `T`'s description. NOTE: if you have several  multiplexers whose `T` is the same, you *should* define unique non-conflicting `cacheKey` parameters for each.
     /// - parameter onFetch: an async throwing block that should retrieve an object presumably in an asynchronous manner.
+    nonisolated
     public init(cacheKey: String? = nil, onFetch: @escaping OnFetch) {
         self.cacheKey = cacheKey ?? String(describing: T.self)
         self.onFetch = onFetch
