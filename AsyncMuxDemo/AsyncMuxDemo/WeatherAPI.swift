@@ -37,59 +37,26 @@ struct WeatherItem: Hashable, Codable {
 
 class WeatherAPI {
 
-    static let placeNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Yerevan, AM", "Tokyo, JP"]
+    static let defaultPlaceNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Yerevan, AM", "Tokyo, JP"]
 
-    static func reload(refresh: Bool) async throws -> [WeatherItem] {
-        try await places.refresh(refresh).request()
-    }
-
-
-    private static let places = Multiplexer<[WeatherItem]> {
-        var places: [WeatherPlace] = []
-
-        // Geocoding requests should be performed one at a time, hence the loop
-        for name in placeNames {
-            do {
-                // Even though geocodeAddressString() has an async version, we use callback and continuation to silence Swift's strict concurrency checking warnings
-                let place = try await withCheckedThrowingContinuation { continuation in
-                    CLGeocoder().geocodeAddressString(name, completionHandler: { placemarks, error in
-                        if let placemark = placemarks?.first?.weatherPlace {
-                            continuation.resume(with: .success(placemark))
-                        }
-                        else if let error {
-                            continuation.resume(with: .failure(error))
-                        }
-                        else {
-                            continuation.resume(with: .failure(AppError(code: "geocoding_error", message: "Couldn't resolve location for \(name)")))
-                        }
-                    })
-                }
-                places.append(place)
+    static let map = MultiplexerMap<String, WeatherItem>(cacheKey: "WeatherMap") { key in
+        do {
+            if let place = try await CLGeocoder().geocodeAddressString(key).first?.weatherPlace {
+                return try await WeatherItem(place: place, weather: fetchCurrent(lat: place.lat, lon: place.lon))
             }
-            catch {
-                // When there's no connection CoreLocation returns the below error; we convert it to a silencable one
-                if (error as NSError).domain == kCLErrorDomain, (error as NSError).code == 2 {
-                    throw SilencableError(wrapped: error)
-                }
-                throw error
+            else {
+                throw AppError(code: "geocoding_error", message: "Couldn't resolve location for \(key)")
             }
         }
-
-        // Now request weather for those places concurrently
-        let tasks = places
-            .map { place in
-                Task {
-                    try await WeatherItem(place: place, weather: fetchCurrent(lat: place.lat, lon: place.lon))
-                }
+        catch {
+            print("ERROR:", error)
+            // When there's no connection CoreLocation returns the below error; we convert it to a silencable one
+            if (error as NSError).domain == kCLErrorDomain, (error as NSError).code == 2 {
+                throw SilencableError(wrapped: error)
             }
-        var items: [WeatherItem] = []
-        for task in tasks {
-            try await items.append(task.value)
+            throw error
         }
-
-        return items
     }.register()
-
 
     private static func fetchCurrent(lat: Double, lon: Double) async throws -> Weather {
         try await URLRequest(getURL: URL(string: "https://api.open-meteo.com/v1/forecast?latitude=\(lat)&longitude=\(lon)&current_weather=true")!)

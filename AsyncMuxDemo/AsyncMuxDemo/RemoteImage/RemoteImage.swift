@@ -11,8 +11,8 @@ import AsyncMux
 struct RemoteImage<P: View, I: View>: View {
 
     let url: URL
-    let content: (Image) -> I
-    let placeholder: (Error?) -> P
+    @ViewBuilder let content: (Image) -> I
+    @ViewBuilder let placeholder: (Error?) -> P
 
     @State private var result: Image?
     @State private var error: Error?
