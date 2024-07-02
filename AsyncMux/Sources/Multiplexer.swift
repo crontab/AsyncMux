@@ -43,9 +43,7 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     /// Performs a request either by calling the `onFetch` block supplied in the multiplexer's constructor, or by returning the previously cached object, if available. Multiple simultaneous calls to `request()` are handled by the Multiplexer so that only one `onFetch` operation can be invoked at a time, but all callers of `request()` will eventually receive the result.
     public func request() async throws -> T {
-        return try await request(domain: muxRootDomain, key: cacheKey) { [self] in
-            try await onFetch()
-        }
+        return try await request(domain: muxRootDomain, key: cacheKey)
     }
 
     /// "Soft" refresh: the next call to `request()` will attempt to retrieve the object again, without discarding the caches in case of a failure. `refresh()` does not have an immediate effect on any ongoing asynchronous requests. Can be chained with the subsequent `request()`.
@@ -81,14 +79,14 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     private let onFetch: OnFetch
 
-    private var storedValue: T?
-    private var isDirty: Bool = false
-    private var refreshFlag: Bool = false
+    internal var storedValue: T?
+    internal var isDirty: Bool = false
+    internal var refreshFlag: Bool = false
 
     private var task: Task<T, Error>?
     private var completionTime: TimeInterval = 0
 
-    private func request(domain: String, key: String, onFetch: @escaping OnFetch) async throws -> T {
+    internal func request(domain: String, key: LosslessStringConvertible) async throws -> T {
         if !refreshFlag, !isExpired {
             if let storedValue {
                 return storedValue

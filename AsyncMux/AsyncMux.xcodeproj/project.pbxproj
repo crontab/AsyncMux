@@ -13,6 +13,7 @@
 		3635173029746D2700F9B045 /* AsyncMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172829746D2600F9B045 /* AsyncMedia.swift */; };
 		3635173129746D2700F9B045 /* MuxCacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172929746D2600F9B045 /* MuxCacher.swift */; };
 		3635173229746D2700F9B045 /* MuxRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172A29746D2600F9B045 /* MuxRepository.swift */; };
+		36CD20042C340DFA000C31FF /* MultieplexerMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CD20032C340DFA000C31FF /* MultieplexerMap.swift */; };
 		36E20F2F298215640022D151 /* Multiplexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E20F2E298215640022D151 /* Multiplexer.swift */; };
 /* End PBXBuildFile section */
 
@@ -24,6 +25,7 @@
 		3635172829746D2600F9B045 /* AsyncMedia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncMedia.swift; sourceTree = "<group>"; };
 		3635172929746D2600F9B045 /* MuxCacher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MuxCacher.swift; sourceTree = "<group>"; };
 		3635172A29746D2600F9B045 /* MuxRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MuxRepository.swift; sourceTree = "<group>"; };
+		36CD20032C340DFA000C31FF /* MultieplexerMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultieplexerMap.swift; sourceTree = "<group>"; };
 		36E20F2E298215640022D151 /* Multiplexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Multiplexer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -59,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				36E20F2E298215640022D151 /* Multiplexer.swift */,
+				36CD20032C340DFA000C31FF /* MultieplexerMap.swift */,
 				3635172829746D2600F9B045 /* AsyncMedia.swift */,
 				3635172A29746D2600F9B045 /* MuxRepository.swift */,
 				3635172929746D2600F9B045 /* MuxCacher.swift */,
@@ -108,7 +111,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1420;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					362CC58929746BE900059933 = {
 						CreatedOnToolsVersion = 14.2;
@@ -153,6 +156,7 @@
 				3635172F29746D2700F9B045 /* AsyncUtils.swift in Sources */,
 				3635172D29746D2700F9B045 /* AsyncError.swift in Sources */,
 				3635173129746D2700F9B045 /* MuxCacher.swift in Sources */,
+				36CD20042C340DFA000C31FF /* MultieplexerMap.swift in Sources */,
 				3635173029746D2700F9B045 /* AsyncMedia.swift in Sources */,
 				36E20F2F298215640022D151 /* Multiplexer.swift in Sources */,
 			);
@@ -198,6 +202,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -212,7 +217,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -262,6 +267,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -270,7 +276,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -287,6 +293,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -294,6 +301,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -305,6 +313,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = com.melikyan.AsyncMux;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -322,6 +331,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -329,6 +339,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -340,6 +351,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = com.melikyan.AsyncMux;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
