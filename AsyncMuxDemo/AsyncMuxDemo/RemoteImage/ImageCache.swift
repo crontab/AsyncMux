@@ -8,7 +8,7 @@ import SwiftUI
 import AsyncMux
 
 
-private let capacity = 20
+private let CacheCapacity = 20
 
 
 final class ImageCache {
@@ -58,7 +58,7 @@ final class ImageCache {
     
     
     nonisolated(unsafe)
-    private static var memCache = LRUCache<URL, Image>(capacity: capacity)
+    private static var memCache = LRUCache<URL, Image>(capacity: CacheCapacity)
     
     private static let semaphore = DispatchSemaphore(value: 1)
 }

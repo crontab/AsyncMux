@@ -17,7 +17,6 @@ struct RemoteImage<P: View, I: View>: View {
     @State private var result: Image?
     @State private var error: Error?
 
-    @ViewBuilder
     var body: some View {
         if let result {
             content(result)
