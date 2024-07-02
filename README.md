@@ -1,5 +1,5 @@
 # AsyncMux
-### Asnychronous multiplexer utilities with caching for Swift
+### Asynchronous caching and multiplexing layer for modern Swift client apps
 
 #### Table of contents
 
