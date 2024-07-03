@@ -163,6 +163,7 @@ See also:
 - [`Multiplexer`](#multiplexer)
 - [`MuxRepository`](#mux-repository)
 
+More detailed descriptions on each method can be found in the source file [MultiplexerMap.swift](AsyncMux/Sources/MultiplexerMap.swift).
 
 <a name="mux-repository"></a>
 ## MuxRepository
