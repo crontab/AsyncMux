@@ -1,5 +1,5 @@
 //
-//  MultieplexerMap.swift
+//  MultiplexerMap.swift
 //  AsyncMux
 //
 //  Created by Hovik Melikyan on 02.07.24.
@@ -12,7 +12,7 @@ import Foundation
 public typealias MuxKey = LosslessStringConvertible & Hashable & Sendable
 
 
-// MARK: - MultieplexerMap
+// MARK: - MultiplexerMap
 
 ///
 /// `MultiplexerMap<K, T>` is similar to `Multiplexer<T>` in many ways except it maintains a dictionary of objects of the same type. One example would be e.g. user profile objects in your social app.
