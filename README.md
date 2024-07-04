@@ -15,7 +15,7 @@
 <a name="intro"></a>
 ## 1. Introduction
 
-The Swift AsyncMux utility suite provides a caching layer for network objects, based on Swift's Structured Concurrency (`async/await`).
+The Swift AsyncMux utility suite provides a caching/multiplexing layer for network objects, based on Swift's Structured Concurrency (`async/await`). AsyncMux is an evolution of an older, callback-based library available [here](https://github.com/crontab/Multiplexer).
 
 Here are the scenarios that are covered by the Multiplexer utilities:
 
