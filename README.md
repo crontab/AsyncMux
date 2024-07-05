@@ -100,16 +100,6 @@ At run time, you can invalidate the cached object using one of the following met
 - "Soft refresh": chain the `refresh()` method with a call to `request()`: the multiplexer will attempt to fetch the object again, but will not discard the existing cached objects in memory or on disk. In case of a silencable error (i.e. connectivity issue) the older cached object will be used again as a result.
 - "Hard refresh": call `clear()` to discard both memory and disk caches for a given object. The next call to `request()` will attempt to fetch the object and will fail in case of an error.
 
-See also:
-
-- `init(cacheKey: String? = nil, onFetch: @escaping @Sendable () async throws -> T)`
-- `request()`
-- `refresh()`
-- `clear()`
-- `save()`
-- [`MultiplexerMap`](#multiplexer-map)
-- [`MuxRepository`](#mux-repository)
-
 More detailed descriptions on each method can be found in the source file [Multiplexer.swift](AsyncMux/Sources/Multiplexer.swift).
 
 
@@ -150,18 +140,6 @@ catch {
 Like `Multiplexer`, `MultiplexerMap` defines its own methods `refresh()`, `clear()` and `save()`. Additionally for `refresh()` and `clear()` there are versions of these methods that take the object key as a parameter.
 
 Internally `MultiplexerMap` maintains a map of `Multiplexer` objects, meaning that fetching and caching of each object by its ID is done independently.
-
-See also:
-
-- `init(cacheKey: String? = nil, onKeyFetch: @escaping @Sendable (K) async throws -> T)`
-- `request(key: K) async throws -> T`
-- `refresh(key: K)`
-- `clear(key: K)`
-- `refresh()`
-- `clear()`
-- `save()`
-- [`Multiplexer`](#multiplexer)
-- [`MuxRepository`](#mux-repository)
 
 More detailed descriptions on each method can be found in the source file [MultiplexerMap.swift](AsyncMux/Sources/MultiplexerMap.swift).
 
