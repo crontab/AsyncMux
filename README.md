@@ -177,7 +177,7 @@ The demo app also includes a complete package for in-memory LRU caching of image
 <a name="experimental"></a>
 ## Experimental features
 
-This version of the library includes an experimental utility feature `Zip` and accompanying family of functions `zip(...)`. They are described and defined in [`Zip.swift`](AsyncMux/Sources/Zip.swift). For an example usage see function `reload()` in [the demo app's `ContentView`](AsyncMuxDemo/Sources/ContentView.swift).
+This version of the library includes an experimental utility feature `Zip` and an accompanying family of functions `zip(...)`. They are described and defined in [`Zip.swift`](AsyncMux/Sources/Zip.swift). For an example usage see function `reload()` in [the demo app's `ContentView`](AsyncMuxDemo/Sources/ContentView.swift).
 
 
 <a name="building"></a>
