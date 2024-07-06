@@ -30,19 +30,20 @@ struct Weather: Codable, Hashable {
 
 
 struct WeatherItem: Hashable, Codable {
-    var place: WeatherPlace
-    var weather: Weather?
+    let name: String
+    let place: WeatherPlace
+    let weather: Weather?
 }
 
 
-class WeatherAPI {
+final class WeatherAPI {
 
     static let defaultPlaceNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Yerevan, AM", "Tokyo, JP"]
 
     static let map = MultiplexerMap<String, WeatherItem>(cacheKey: "WeatherMap") { key in
         do {
             if let place = try await CLGeocoder().geocodeAddressString(key).first?.weatherPlace {
-                return try await WeatherItem(place: place, weather: fetchCurrent(lat: place.lat, lon: place.lon))
+                return try await WeatherItem(name: key, place: place, weather: fetchCurrent(lat: place.lat, lon: place.lon))
             }
             else {
                 throw AppError(code: "geocoding_error", message: "Couldn't resolve location for \(key)")

@@ -18,7 +18,6 @@ private let backgroundURL = URL(string: "https://images.unsplash.com/photo-15130
 
 struct ContentView: View {
 
-    // TODO: make placeNames editable by user; use place search
     @State var placeNames = WeatherAPI.defaultPlaceNames
 
     @State var weather: [String: WeatherItem] = [:]
@@ -75,11 +74,18 @@ struct ContentView: View {
 
     @MainActor
     private func reload() async throws {
-        placeNames.forEach { name in
-            Task {
-                weather[name] = try await WeatherAPI.map.request(key: name)
+        // Create an array of actions for the zipper
+        let actions = placeNames.map { name in
+            { @Sendable in 
+                try await WeatherAPI.map.request(key: name)
             }
         }
+        // Execute the array of actions in parallel, get the results in an array and convert them to a dictionary to be used in the UI
+        weather = try await Zip(actions: actions)
+            .result
+            .reduce(into: [String: WeatherItem]()) {
+                $0[$1.name] = $1
+            }
     }
 }
 
@@ -88,8 +94,8 @@ struct ContentView: View {
     ContentView(
         placeNames: ["London, UK", "Paris, FR"],
         weather: [
-            "London, UK": .init(place: .init(city: "London", countryCode: "GB", lat: 51.51, lon: -0.13), weather: .init(currentWeather: .init(temperature: 8.1, weathercode: 2))),
-            "Paris, FR": .init(place: .init(city: "Paris", countryCode: "FR", lat: 48.84, lon: 2.36), weather: .init(currentWeather: .init(temperature: 10.2, weathercode: 3)))
+            "London, UK": .init(name: "London, UK", place: .init(city: "London", countryCode: "GB", lat: 51.51, lon: -0.13), weather: .init(currentWeather: .init(temperature: 8.1, weathercode: 2))),
+            "Paris, FR": .init(name: "Paris, FR", place: .init(city: "Paris", countryCode: "FR", lat: 48.84, lon: 2.36), weather: .init(currentWeather: .init(temperature: 10.2, weathercode: 3)))
         ]
     )
 }

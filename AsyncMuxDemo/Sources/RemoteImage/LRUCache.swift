@@ -96,7 +96,7 @@ struct LRUCache<K: Hashable, E>: Sequence {
     
     private struct BubbleList {
         
-        class Node {
+        final class Node {
             var key: K
             var value: E
             var down: Node?
