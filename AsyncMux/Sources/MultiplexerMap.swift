@@ -38,14 +38,14 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
     /// Performs a request either by calling the `onFetch` block supplied in the multiplexer's constructor, or by returning the previously cached object, if available. Multiple simultaneous calls to `request(key:)` are handled by the MultiplexerMap so that only one `onFetch` operation is invoked at a time for any given `key`, but all callers of `request(key:)` will eventually receive the result.
     public func request(key: K) async throws -> T {
         let mux = muxMap[key] ?? {
-            let onFetch = onFetch // avoid capture of `self`
-            let mux = Multiplexer {
-                try await onFetch(key)
-            }
+            let mux = _MuxFetcher<T>()
             muxMap[key] = mux
             return mux
         }()
-        return try await mux.request(domain: cacheKey, key: key)
+        let onFetch = onFetch // avoid capture of `self`
+        return try await mux.request(domain: cacheKey, key: key) {
+            try await onFetch(key)
+        }
     }
 
     /// "Soft" refresh: the next call to `request(key:)` will attempt to retrieve the object again, without discarding the caches in case of a failure. `refresh(key:)` does not have an immediate effect on any ongoing asynchronous requests. Can be chained with the subsequent `request(key:)`.
@@ -108,5 +108,5 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
     // Private part
 
     private let onFetch: OnFetch
-    private var muxMap: [K: Multiplexer<T>] = [:]
+    private var muxMap: [K: _MuxFetcher<T>] = [:]
 }
