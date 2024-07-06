@@ -19,7 +19,6 @@
 		36FB7010296A10F90006ACBA /* AsyncMuxDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */; };
 		36FB7012296A10F90006ACBA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB7011296A10F90006ACBA /* ContentView.swift */; };
 		36FB7014296A10FB0006ACBA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36FB7013296A10FB0006ACBA /* Assets.xcassets */; };
-		36FB7017296A10FB0006ACBA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36FB7016296A10FB0006ACBA /* Preview Assets.xcassets */; };
 		36FB701E296A12D20006ACBA /* URLRequestEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB701D296A12D20006ACBA /* URLRequestEx.swift */; };
 		36FB7020296A14400006ACBA /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB701F296A14400006ACBA /* AppError.swift */; };
 /* End PBXBuildFile section */
@@ -53,7 +52,6 @@
 		36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMuxDemoApp.swift; sourceTree = "<group>"; };
 		36FB7011296A10F90006ACBA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		36FB7013296A10FB0006ACBA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		36FB7016296A10FB0006ACBA /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		36FB701D296A12D20006ACBA /* URLRequestEx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestEx.swift; sourceTree = "<group>"; };
 		36FB701F296A14400006ACBA /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -121,17 +119,8 @@
 				36FB7013296A10FB0006ACBA /* Assets.xcassets */,
 				36F73231297AE6B00019807B /* AsyncMuxDemo.entitlements */,
 				360EBA4C296A2AA9001EC729 /* Info.plist */,
-				36FB7015296A10FB0006ACBA /* Preview Content */,
 			);
 			path = AsyncMuxDemo;
-			sourceTree = "<group>";
-		};
-		36FB7015296A10FB0006ACBA /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				36FB7016296A10FB0006ACBA /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -195,7 +184,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				36FB7017296A10FB0006ACBA /* Preview Assets.xcassets in Resources */,
 				36FB7014296A10FB0006ACBA /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -350,7 +338,6 @@
 				CODE_SIGN_ENTITLEMENTS = AsyncMuxDemo/AsyncMuxDemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"AsyncMuxDemo/Preview Content\"";
 				DEVELOPMENT_TEAM = 639KEQWW6F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -385,7 +372,6 @@
 				CODE_SIGN_ENTITLEMENTS = AsyncMuxDemo/AsyncMuxDemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"AsyncMuxDemo/Preview Content\"";
 				DEVELOPMENT_TEAM = 639KEQWW6F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
