@@ -8,8 +8,8 @@
 - [MultiplexerMap](#multiplexer-map)
 - [MuxRepository](#mux-repository)
 - [AsyncMedia](#media-downloader)
-- [Building and linking](#building)
 - [Experimental features](#experimental)
+- [Building and linking](#building)
 - [Authors](#authors)
 
 
