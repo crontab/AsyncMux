@@ -35,7 +35,7 @@ struct WeatherItem: Hashable, Codable {
 }
 
 
-class WeatherAPI {
+final class WeatherAPI {
 
     static let defaultPlaceNames: [String] = ["New York, US", "London, UK", "Paris, FR", "Yerevan, AM", "Tokyo, JP"]
 
