@@ -9,7 +9,7 @@
 import Foundation
 
 
-public class MuxCacher {
+final public class MuxCacher {
 
     public static func load<T: Decodable>(domain: String, key: LosslessStringConvertible, type: T.Type) -> T? {
         return try? JSONDecoder().decode(type, from: Data(contentsOf: cacheFileURL(domain: domain, key: key, create: false)))

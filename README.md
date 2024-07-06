@@ -8,12 +8,13 @@
 - [MultiplexerMap](#multiplexer-map)
 - [MuxRepository](#mux-repository)
 - [AsyncMedia](#media-downloader)
+- [Experimental features](#experimental)
 - [Building and linking](#building)
 - [Authors](#authors)
 
 
 <a name="intro"></a>
-## 1. Introduction
+## Introduction
 
 The Swift AsyncMux utility suite provides a caching/multiplexing layer for network objects, based on Swift's Structured Concurrency (`async/await`). AsyncMux is an evolution of an older, callback-based library available [here](https://github.com/crontab/Multiplexer).
 
@@ -148,7 +149,7 @@ More detailed descriptions on each method can be found in the source file [Multi
 
 `MuxRepository` is a global actor-singleton that can be used for centralized operations such as `clearAll()` and `saveAll()` on all multiplexer instances in your app. You should register each instance using the `register()` method on each multiplexer instance. Note that MuxRepository retains the objects, which generally should not be a problem for singletons. Use `unregister()` in case you need to release an instance previously registered with the repository.
 
-By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store objects on disk. If you want to keep the objects to ensure they survive app reboots, make sure you call `MuxRepository.shared.saveAll()` when the app is sent to background, [like shown in the Demo app](AsyncMuxDemo/AsyncMuxDemo/AsyncMuxDemoApp.swift).
+By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store objects on disk. If you want to keep the objects to ensure they survive app reboots, make sure you call `MuxRepository.shared.saveAll()` when the app is sent to background, [like shown in the Demo app](AsyncMuxDemo/Sources/AsyncMuxDemoApp.swift).
 
 `MuxRepository.shared.clearAll()` discards all memory and disk objects. This is useful when e.g. the user signs out of your system and you need to make sure no traces are left of data related to a given user in memory or disk.
 
@@ -168,9 +169,15 @@ Use `cachedValue(url:)` to get the local file URL of a cached object, if availab
 
 Note that the remote files are assumed to be immutable, and therefore no time-to-live is maintained, i.e. it is assumed that the file can be stored in the local cache indefinitely. Note also that the OS can wipe the app's cache directory if it needs to free space.
 
-Even though the latest iOS versions provide the `AsyncImage` interface, but for the sake of an example suppose you need to download an image and display it as the background image for your view. An example of how this can be done is [shown in the demo app](AsyncMuxDemo/AsyncMuxDemo/ContentView.swift).
+Even though the latest iOS versions provide the `AsyncImage` interface, but for the sake of an example suppose you need to download an image and display it as the background image for your view. An example of how this can be done is [shown in the demo app](AsyncMuxDemo/Sources/ContentView.swift).
 
-The demo app also includes a complete package for in-memory LRU caching of images backed by `AsyncMedia`, as well as the `RemoteImage` component that uses both ([see here](AsyncMuxDemo/AsyncMuxDemo/RemoteImage)).
+The demo app also includes a complete package for in-memory LRU caching of images backed by `AsyncMedia`, as well as the `RemoteImage` component that uses both ([see here](AsyncMuxDemo/Sources/RemoteImage)).
+
+
+<a name="experimental"></a>
+## Experimental features
+
+This version of the library includes an experimental utility feature `Zip` and an accompanying family of functions `zip(...)`. They are described and defined in [`Zip.swift`](AsyncMux/Sources/Zip.swift). For an example usage see function `reload()` in [the demo app's `ContentView`](AsyncMuxDemo/Sources/ContentView.swift).
 
 
 <a name="building"></a>

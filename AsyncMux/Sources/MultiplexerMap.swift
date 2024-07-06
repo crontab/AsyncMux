@@ -24,14 +24,14 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
 
     public typealias OnFetch = @Sendable (K) async throws -> T
 
-    public let cacheKey: String
+    public let cacheKey: String?
 
     /// Instantiates a `MultiplexerMap<T>` object with a given `onFetch` block.
     /// - parameter cacheKey (optional): a string to be used as a file name for the disk cache. If omitted, an automatic name is generated based on `T`'s description. NOTE: if you have several  multiplexers whose `T` is the same, you *should* define unique non-conflicting `cacheKey` parameters for each.
     /// - parameter onFetch: an async throwing block that should retrieve an object by a given key presumably in an asynchronous manner.
     nonisolated
     public init(cacheKey: String? = nil, onFetch: @escaping OnFetch) {
-        self.cacheKey = cacheKey ?? String(describing: T.self)
+        self.cacheKey = cacheKey
         self.onFetch = onFetch
     }
 
@@ -72,7 +72,9 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
     public func save() {
         muxMap.forEach { key, mux in
             if mux.isDirty, let storedValue = mux.storedValue {
-                MuxCacher.save(storedValue, domain: cacheKey, key: String(key))
+                if let cacheKey {
+                    MuxCacher.save(storedValue, domain: cacheKey, key: String(key))
+                }
                 mux.isDirty = false
             }
         }
@@ -88,13 +90,17 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
 
     /// Clears the memory and disk caches for an object with a given `key`. Will trigger a full fetch on the next `request(key:)` call.
     public func clear(key: K) {
-        MuxCacher.delete(domain: cacheKey, key: String(key))
+        if let cacheKey {
+            MuxCacher.delete(domain: cacheKey, key: String(key))
+        }
         clearMemory(key: key)
     }
 
     /// Clears the memory and disk caches all objects in this `MultiplexerMap`. Will trigger a full fetch on the next `request(key:)` call.
     public func clear() {
-        MuxCacher.deleteDomain(cacheKey)
+        if let cacheKey {
+            MuxCacher.deleteDomain(cacheKey)
+        }
         clearMemory()
     }
 

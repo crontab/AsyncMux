@@ -13,7 +13,7 @@ public protocol MuxRepositoryProtocol: Sendable {
     func save() async
     func clearMemory() async
     func clear() async
-    var cacheKey: String { get }
+    var cacheKey: String? { get }
 }
 
 
@@ -45,13 +45,18 @@ public actor MuxRepository {
     }
 
     func register(mux: MuxRepositoryProtocol) {
-        let id = mux.cacheKey
-        precondition(repo[id] == nil, "MuxRepository: duplicate registration (Cache key: \(id))")
-        repo[id] = mux
+        guard let key = mux.cacheKey else {
+            preconditionFailure("MuxRepository: cacheKey is required for \(String(describing: mux))")
+        }
+        precondition(repo[key] == nil, "MuxRepository: duplicate registration (Cache key: \(key))")
+        repo[key] = mux
     }
 
     func unregister(mux: MuxRepositoryProtocol) {
-        repo.removeValue(forKey: mux.cacheKey)
+        guard let key = mux.cacheKey else {
+            preconditionFailure("MuxRepository: cacheKey is required for \(String(describing: mux))")
+        }
+        repo.removeValue(forKey: key)
     }
 
     private var repo: [String: MuxRepositoryProtocol] = [:]

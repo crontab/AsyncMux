@@ -18,8 +18,6 @@
 		36C131B929805B8E0076E476 /* AsyncMux.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 36C131B729805B8E0076E476 /* AsyncMux.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		36FB7010296A10F90006ACBA /* AsyncMuxDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */; };
 		36FB7012296A10F90006ACBA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB7011296A10F90006ACBA /* ContentView.swift */; };
-		36FB7014296A10FB0006ACBA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36FB7013296A10FB0006ACBA /* Assets.xcassets */; };
-		36FB7017296A10FB0006ACBA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36FB7016296A10FB0006ACBA /* Preview Assets.xcassets */; };
 		36FB701E296A12D20006ACBA /* URLRequestEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB701D296A12D20006ACBA /* URLRequestEx.swift */; };
 		36FB7020296A14400006ACBA /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB701F296A14400006ACBA /* AppError.swift */; };
 /* End PBXBuildFile section */
@@ -40,20 +38,19 @@
 
 /* Begin PBXFileReference section */
 		3606A39429EDACB8002E8878 /* RemoteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
-		360EBA4C296A2AA9001EC729 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		360EBA4D296A2C10001EC729 /* WeatherAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAPI.swift; sourceTree = "<group>"; };
 		360EBA55296A5388001EC729 /* ErrorAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorAlert.swift; sourceTree = "<group>"; };
 		360EBA57296A5C7E001EC729 /* ServerTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerTask.swift; sourceTree = "<group>"; };
 		361F7D142C32A0750050F657 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		361F7D172C32A0EA0050F657 /* LRUCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRUCache.swift; sourceTree = "<group>"; };
 		3625CE1D296A283800D09A8F /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
+		368523012C391B31006D6846 /* AsyncMuxDemo.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = AsyncMuxDemo.entitlements; sourceTree = "<group>"; };
+		368523022C391B31006D6846 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		36C131B729805B8E0076E476 /* AsyncMux.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AsyncMux.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		36F73231297AE6B00019807B /* AsyncMuxDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AsyncMuxDemo.entitlements; sourceTree = "<group>"; };
 		36FB700C296A10F90006ACBA /* AsyncMuxDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AsyncMuxDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMuxDemoApp.swift; sourceTree = "<group>"; };
 		36FB7011296A10F90006ACBA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		36FB7013296A10FB0006ACBA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		36FB7016296A10FB0006ACBA /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		36FB701D296A12D20006ACBA /* URLRequestEx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestEx.swift; sourceTree = "<group>"; };
 		36FB701F296A14400006ACBA /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -91,7 +88,9 @@
 		36FB7003296A10F90006ACBA = {
 			isa = PBXGroup;
 			children = (
-				36FB700E296A10F90006ACBA /* AsyncMuxDemo */,
+				36FB700E296A10F90006ACBA /* Sources */,
+				368523012C391B31006D6846 /* AsyncMuxDemo.entitlements */,
+				368523022C391B31006D6846 /* Info.plist */,
 				36FB700D296A10F90006ACBA /* Products */,
 				3697D0FA296B76C100FE3B76 /* Frameworks */,
 			);
@@ -106,7 +105,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		36FB700E296A10F90006ACBA /* AsyncMuxDemo */ = {
+		36FB700E296A10F90006ACBA /* Sources */ = {
 			isa = PBXGroup;
 			children = (
 				361F7D162C32A09C0050F657 /* RemoteImage */,
@@ -119,19 +118,8 @@
 				36FB7011296A10F90006ACBA /* ContentView.swift */,
 				36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */,
 				36FB7013296A10FB0006ACBA /* Assets.xcassets */,
-				36F73231297AE6B00019807B /* AsyncMuxDemo.entitlements */,
-				360EBA4C296A2AA9001EC729 /* Info.plist */,
-				36FB7015296A10FB0006ACBA /* Preview Content */,
 			);
-			path = AsyncMuxDemo;
-			sourceTree = "<group>";
-		};
-		36FB7015296A10FB0006ACBA /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				36FB7016296A10FB0006ACBA /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
+			path = Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -195,8 +183,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				36FB7017296A10FB0006ACBA /* Preview Assets.xcassets in Resources */,
-				36FB7014296A10FB0006ACBA /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,14 +333,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = AsyncMuxDemo/AsyncMuxDemo.entitlements;
+				CODE_SIGN_ENTITLEMENTS = AsyncMuxDemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"AsyncMuxDemo/Preview Content\"";
 				DEVELOPMENT_TEAM = 639KEQWW6F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AsyncMuxDemo/Info.plist;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -382,14 +367,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = AsyncMuxDemo/AsyncMuxDemo.entitlements;
+				CODE_SIGN_ENTITLEMENTS = AsyncMuxDemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"AsyncMuxDemo/Preview Content\"";
 				DEVELOPMENT_TEAM = 639KEQWW6F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AsyncMuxDemo/Info.plist;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
