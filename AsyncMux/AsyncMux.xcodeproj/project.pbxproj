@@ -13,7 +13,7 @@
 		3635173029746D2700F9B045 /* AsyncMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172829746D2600F9B045 /* AsyncMedia.swift */; };
 		3635173129746D2700F9B045 /* MuxCacher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172929746D2600F9B045 /* MuxCacher.swift */; };
 		3635173229746D2700F9B045 /* MuxRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3635172A29746D2600F9B045 /* MuxRepository.swift */; };
-		36CD20042C340DFA000C31FF /* MultieplexerMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CD20032C340DFA000C31FF /* MultieplexerMap.swift */; };
+		36CD20042C340DFA000C31FF /* MultiplexerMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CD20032C340DFA000C31FF /* MultiplexerMap.swift */; };
 		36E20F2F298215640022D151 /* Multiplexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E20F2E298215640022D151 /* Multiplexer.swift */; };
 /* End PBXBuildFile section */
 
@@ -25,7 +25,7 @@
 		3635172829746D2600F9B045 /* AsyncMedia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncMedia.swift; sourceTree = "<group>"; };
 		3635172929746D2600F9B045 /* MuxCacher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MuxCacher.swift; sourceTree = "<group>"; };
 		3635172A29746D2600F9B045 /* MuxRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MuxRepository.swift; sourceTree = "<group>"; };
-		36CD20032C340DFA000C31FF /* MultieplexerMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultieplexerMap.swift; sourceTree = "<group>"; };
+		36CD20032C340DFA000C31FF /* MultiplexerMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiplexerMap.swift; sourceTree = "<group>"; };
 		36E20F2E298215640022D151 /* Multiplexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Multiplexer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -61,7 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				36E20F2E298215640022D151 /* Multiplexer.swift */,
-				36CD20032C340DFA000C31FF /* MultieplexerMap.swift */,
+				36CD20032C340DFA000C31FF /* MultiplexerMap.swift */,
 				3635172829746D2600F9B045 /* AsyncMedia.swift */,
 				3635172A29746D2600F9B045 /* MuxRepository.swift */,
 				3635172929746D2600F9B045 /* MuxCacher.swift */,
@@ -156,7 +156,7 @@
 				3635172F29746D2700F9B045 /* AsyncUtils.swift in Sources */,
 				3635172D29746D2700F9B045 /* AsyncError.swift in Sources */,
 				3635173129746D2700F9B045 /* MuxCacher.swift in Sources */,
-				36CD20042C340DFA000C31FF /* MultieplexerMap.swift in Sources */,
+				36CD20042C340DFA000C31FF /* MultiplexerMap.swift in Sources */,
 				3635173029746D2700F9B045 /* AsyncMedia.swift in Sources */,
 				36E20F2F298215640022D151 /* Multiplexer.swift in Sources */,
 			);
