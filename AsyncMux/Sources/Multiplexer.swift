@@ -30,14 +30,14 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     public typealias OnFetch = @Sendable () async throws -> T
 
-    public let cacheKey: String
+    public let cacheKey: String?
 
     /// Instantiates a `Multiplexer<T>` object with a given `onFetch` block.
     /// - parameter cacheKey (optional): a string to be used as a file name for the disk cache. If omitted, an automatic name is generated based on `T`'s description. NOTE: if you have several  multiplexers whose `T` is the same, you *should* define unique non-conflicting `cacheKey` parameters for each.
     /// - parameter onFetch: an async throwing block that should retrieve an object presumably in an asynchronous manner.
     nonisolated
     public init(cacheKey: String? = nil, onFetch: @escaping OnFetch) {
-        self.cacheKey = cacheKey ?? String(describing: T.self)
+        self.cacheKey = cacheKey
         self.onFetch = onFetch
     }
 
@@ -58,7 +58,9 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
     /// Writes the previously cached object to disk.
     public func save() {
         if isDirty, let storedValue {
-            MuxCacher.save(storedValue, domain: muxRootDomain, key: cacheKey)
+            if let cacheKey {
+                MuxCacher.save(storedValue, domain: muxRootDomain, key: cacheKey)
+            }
             isDirty = false
         }
     }
@@ -70,7 +72,9 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     /// Clears the memory and disk caches. Will trigger a full fetch on the next `request()` call.
     public func clear() {
-        MuxCacher.delete(domain: muxRootDomain, key: cacheKey)
+        if let cacheKey {
+            MuxCacher.delete(domain: muxRootDomain, key: cacheKey)
+        }
         clearMemory()
     }
 
@@ -86,12 +90,12 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
     private var task: Task<T, Error>?
     private var completionTime: TimeInterval = 0
 
-    internal func request(domain: String, key: LosslessStringConvertible) async throws -> T {
+    internal func request(domain: String?, key: LosslessStringConvertible?) async throws -> T {
         if !refreshFlag, !isExpired {
             if let storedValue {
                 return storedValue
             }
-            else if let cachedValue = MuxCacher.load(domain: domain, key: key, type: T.self) {
+            else if let key, let domain, let cachedValue = MuxCacher.load(domain: domain, key: key, type: T.self) {
                 storedValue = cachedValue
                 return cachedValue
             }
@@ -105,8 +109,14 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
                     return try await onFetch()
                 }
                 catch {
-                    if error.isSilencable, let cachedValue = storedValue ?? MuxCacher.load(domain: domain, key: key, type: T.self) {
-                        return cachedValue
+                    if error.isSilencable {
+                        if let storedValue {
+                            return storedValue
+                        }
+                        else if let key, let domain, let cachedValue = MuxCacher.load(domain: domain, key: key, type: T.self) {
+                            storedValue = cachedValue
+                            return cachedValue
+                        }
                     }
                     throw error
                 }
