@@ -1,4 +1,4 @@
-// swift-tools-version: 5.7
+// swift-tools-version: 5.10
 
 import PackageDescription
 
@@ -17,7 +17,10 @@ let package = Package(
         .target(
             name: "AsyncMux",
             dependencies: [],
-            path: "AsyncMux/Sources"
+			path: "AsyncMux/Sources",
+			swiftSettings: [
+				.unsafeFlags(["~swift-strict-concurrency=complete"])
+			]
         ),
     ]
 )
