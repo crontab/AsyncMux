@@ -5,7 +5,6 @@
 //  Created by Hovik Melikyan on 07/01/2023.
 //
 
-import UIKit // for UIImage
 import SwiftUI
 import AsyncMux
 
