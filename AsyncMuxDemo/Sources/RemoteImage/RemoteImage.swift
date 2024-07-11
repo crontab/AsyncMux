@@ -10,7 +10,7 @@ import AsyncMux
 
 struct RemoteImage<P: View, I: View>: View {
 
-    let url: URL
+    let url: URL?
     @ViewBuilder let content: (Image) -> I
     @ViewBuilder let placeholder: (Error?) -> P
 
@@ -26,7 +26,7 @@ struct RemoteImage<P: View, I: View>: View {
             placeholder(error)
         }
 
-        else if let image = ImageCache.loadFromMemory(url) {
+        else if let image = url.flatMap({ ImageCache.loadFromMemory($0) }) {
             content(image)
                 .task {
                     result = image // the view will be updated twice; is there a better way?
@@ -36,6 +36,7 @@ struct RemoteImage<P: View, I: View>: View {
         else {
             placeholder(nil)
                 .task {
+                    guard let url else { return }
                     do {
                         result = try await ImageCache.request(url)
                     }
