@@ -1,6 +1,6 @@
 //
 //  Zip.swift
-//  AsyncMuxDemo
+//  AsyncMux
 //
 //  Created by Hovik Melikyan on 06.07.24.
 //
@@ -8,7 +8,7 @@
 import Foundation
 
 
-// This is an experimental module not yet included in the documentation.
+// This is an experimental module not yet documented.
 
 
 /// `Zip<T>` allows to combine two or more parallel asynchronous actions into one and receive the results from all of them at once, when they become available. The result of the execution is returned as an array of T.
