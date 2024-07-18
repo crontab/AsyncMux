@@ -55,7 +55,7 @@ public actor AsyncMedia {
 
     /// Returns a local file URL for a cached object, if it exists
     public static func cachedValue(url: URL) -> URL? {
-        let cachedURL = cacheFileURLFor(url: url, createDir: true)
+        let cachedURL = cacheFileURLFor(url: url, createDir: false)
         if FileManager.default.fileExists(cachedURL) {
             return cachedURL
         }
