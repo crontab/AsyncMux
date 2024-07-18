@@ -8,22 +8,22 @@ import Foundation
 
 
 struct LRUCache<K: Hashable, E>: Sequence {
-    
+
     private(set) var capacity: Int
-    
+
     var count: Int { list.count }
     var isEmpty: Bool { list.isEmpty }
-    
+
     private var list = BubbleList()
     private var dict = Dictionary<K, BubbleList.Node>()
-    
-    
+
+
     init(capacity: Int) {
         precondition(capacity > 0)
         self.capacity = capacity
     }
-    
-    
+
+
     mutating func set(_ element: E, forKey key: K) {
         if let node = dict[key] {
             node.value = element
@@ -37,8 +37,8 @@ struct LRUCache<K: Hashable, E>: Sequence {
             dict[key] = list.add(key: key, value: element)
         }
     }
-    
-    
+
+
     mutating func touch(key: K) -> E? {
         if let node = dict[key] {
             list.moveToTop(node: node)
@@ -46,8 +46,8 @@ struct LRUCache<K: Hashable, E>: Sequence {
         }
         return nil
     }
-    
-    
+
+
     @discardableResult
     mutating func remove(key: K) -> E? {
         if let node = dict[key] {
@@ -57,92 +57,92 @@ struct LRUCache<K: Hashable, E>: Sequence {
         }
         return nil
     }
-    
-    
+
+
     func has(key: K) -> Bool {
         dict[key] != nil
     }
-    
-    
+
+
     mutating func removeAll() {
         list.removeAll()
         dict.removeAll()
     }
-    
-    
+
+
     // MARK: - iterator/sequence
-    
+
     struct Iterator: IteratorProtocol {
         typealias Element = E
         private var currentNode: BubbleList.Node?
-        
+
         init(iteree: LRUCache) {
             currentNode = iteree.list.top
         }
-        
+
         mutating func next() -> E? {
             defer { currentNode = currentNode?.down }
             return currentNode?.value
         }
     }
-    
-    
+
+
     __consuming func makeIterator() -> Iterator {
         return Iterator(iteree: self)
     }
-    
-    
+
+
     // MARK: - linked list, internal
-    
+
     private struct BubbleList {
-        
+
         final class Node {
-            var key: K
+            let key: K
             var value: E
             var down: Node?
             weak var up: Node?
-            
+
             init(key: K, value: E) {
                 self.key = key
                 self.value = value
             }
         }
-        
-        
+
+
         private(set) var top: Node?
         private(set) var bottom: Node?
         private(set) var count: Int = 0
-        
+
         var isEmpty: Bool { count == 0 }
-        
-        
+
+
         @discardableResult
         mutating func add(key: K, value: E) -> Node {
             return add(node: Node(key: key, value: value))
         }
-        
-        
+
+
         mutating func moveToTop(node: Node) {
             if top !== node {
                 remove(node: node)
                 add(node: node)
             }
         }
-        
-        
+
+
         @discardableResult
         mutating func removeBottom() -> Node {
             remove(node: bottom!)
         }
-        
-        
+
+
         mutating func removeAll() {
             top = nil
             bottom = nil
             count = 0
         }
-        
-        
+
+
         @discardableResult
         private mutating func add(node: Node) -> Node {
             if let top {
@@ -156,8 +156,8 @@ struct LRUCache<K: Hashable, E>: Sequence {
             count += 1
             return node
         }
-        
-        
+
+
         @discardableResult
         mutating func remove(node: Node) -> Node {
             let up = node.up
