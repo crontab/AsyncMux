@@ -28,7 +28,9 @@ A multiplexer can be configured to use disk caching in addition to memory cachin
 
 Support "soft" and "hard" refreshes, like the browser's Cmd-R and related functions.
 
-**Scenario 2:** provide file downloading, multiplexing and disk caching for immutable objects, such as media files and documents.
+**Scenario 2:** have a dictionary of multiplexers that request and cache objects of a certain type by their symbolic ID, e.g. user profiles.
+
+**Scenario 3:** provide file downloading, multiplexing and disk caching for immutable objects, such as media files and documents.
 
 
 <a name="multiplexer"></a>
@@ -167,11 +169,9 @@ Each file you request using `AsyncMedia.shared.request(url:)` is downloaded and 
 
 Use `cachedValue(url:)` to get the local file URL of a cached object, if available.
 
-Note that the remote files are assumed to be immutable, and therefore no time-to-live is maintained, i.e. it is assumed that the file can be stored in the local cache indefinitely. Note also that the OS can wipe the app's cache directory if it needs to free space.
+Note that the remote files are assumed to be immutable, and therefore no time-to-live is maintained, i.e. it is assumed that the file can be stored in the local cache indefinitely. Note also that the OS can wipe the app's cache directory if it needs to free space, which normally should happen when the app is not running.
 
-Even though the latest iOS versions provide the `AsyncImage` interface, but for the sake of an example suppose you need to download an image and display it as the background image for your view. An example of how this can be done is [shown in the demo app](AsyncMuxDemo/Sources/ContentView.swift).
-
-The demo app also includes a complete package for in-memory LRU caching of images backed by `AsyncMedia`, as well as the `RemoteImage` component that uses both ([see here](AsyncMuxDemo/Sources/RemoteImage)).
+Even though the latest SwiftUI versions come with the `AsyncImage` interface, its behavior is not very well defined in the documentation. We therefore included a complete package for in-memory LRU caching of images backed by `AsyncMedia`, as well as the [`RemoteImage` component](AsyncMuxDemo/Sources/RemoteImage) that uses both, as a part of the demo app.
 
 
 <a name="experimental"></a>
@@ -183,7 +183,7 @@ This version of the library includes an experimental utility feature `Zip` and a
 <a name="building"></a>
 ## Building and linking
 
-You can either clone this repo and use it as a git submodule in your project, or otherwise use the SPM package definition provided.
+You can either use the SPM package definition provided, or alternatively clone this repo and use it as a git submodule in your project.
 
 If you want to try the demo, launch the `AsyncMux.xcworkspace` file. Weather API used in the demo app: [Open Meteo](https://open-meteo.com/en/docs)
 
