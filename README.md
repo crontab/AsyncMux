@@ -20,15 +20,13 @@ The Swift AsyncMux utility suite provides a caching/multiplexing layer for netwo
 
 Here are the scenarios that are covered by the Multiplexer utilities:
 
-**Scenario 1:** execute an async block, typically a network call, and return the result to one or more callers. Various parts of your app may be requesting e.g. the user's profile simultaneously at program startup; you want to make sure the network request is performed only once, then the result is returned to all parts of the app that requested the object. We call it **multiplexing** (not to be confused with multiplexing in networking).
+**Scenario 1:** execute an async block, typically a network call, and return the result to one or more callers. Various parts of your app may be requesting e.g. the user's profile simultaneously at program startup; you want to make sure the network request is performed only once, then the result is returned to all parts of the app that requested the object. We call it **multiplexing**.
 
-Additionally, provide caching of the result in memory for a certain period of time. Subsequent calls to this multiplexer may return the cached result unless some time-to-live (TTL) elapses, in which case a new network call is made transparently.
+Additionally, provide caching of the results in memory for a certain period of time. Subsequent calls to a multiplexer may return the cached result unless some time-to-live (TTL) elapses, in which case a new network call is made transparently.
 
-A multiplexer can be configured to use disk caching in addition to memory caching. Another possibility is to have a multiplexer return a previously known result regardless of its TTL if the latest network call resulted in one of the specific types of failures, such as network connectivity errors.
+**Scenario 2:** if your app is launched while there's no network connection, allow the app to show at least *some* content. This is achieved by caching the network objects on disk so that they can survive app reboots, and by having multiplexers automatically return the cached results regardless of their TTL in case there was a connection error.
 
-Support "soft" and "hard" refreshes, like the browser's Cmd-R and related functions.
-
-**Scenario 2:** have a dictionary of multiplexers that request and cache objects of a certain type by their symbolic ID, e.g. user profiles.
+Provide "soft" and "hard" refresh functions for each multiplexer.
 
 **Scenario 3:** provide file downloading, multiplexing and disk caching for immutable objects, such as media files and documents.
 
