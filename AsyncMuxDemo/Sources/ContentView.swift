@@ -18,39 +18,57 @@ private let backgroundURL = URL(string: "https://images.unsplash.com/photo-15130
 struct ContentView: View {
 
     @State var placeNames = WeatherAPI.defaultPlaceNames
-
     @State var weather: [String: WeatherItem] = [:]
+
+    @State private var error: Error?
 
     var body: some View {
         listView()
             .background(backgroundImageView())
             .preferredColorScheme(.dark)
-            .serverTask {
-                try await reload()
+
+            .task {
+                guard !Globals.isPreview else { return }
+                do {
+                    try await reload()
+                }
+                catch {
+                    self.error = error
+                }
             }
-            .serverRefreshable {
-                await WeatherAPI.map.refresh()
-                try await reload()
+
+            .refreshable {
+                guard !Globals.isPreview else { return }
+                do {
+                    await WeatherAPI.map.refresh()
+                    try await reload()
+                }
+                catch {
+                    self.error = error
+                }
             }
+
+            .errorAlert($error)
     }
 
-    @MainActor // because of List()
     private func listView() -> some View {
-        List {
-            ForEach(placeNames, id: \.self) { placeName in
-                HStack {
-                    Text(placeName)
-                    Spacer()
-                    if let item = weather[placeName] {
-                        Text(item.weather.map { "\(Int(round($0.currentWeather.temperature)))ºC" } ?? "-")
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 0) {
+                ForEach(placeNames, id: \.self) { placeName in
+                    HStack {
+                        Text(placeName)
+                        Spacer()
+                        if let item = weather[placeName] {
+                            Text(item.weather.map { "\(Int(round($0.currentWeather.temperature)))ºC" } ?? "-")
+                        }
                     }
+                    .padding(.vertical)
+                    Divider()
                 }
-                .listRowBackground(Color.clear)
             }
         }
-        .listStyle(.inset)
+        .padding()
         .font(.title2)
-        .scrollContentBackground(.hidden)
     }
 
     private func backgroundImageView() -> some View {
