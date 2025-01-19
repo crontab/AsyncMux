@@ -189,7 +189,7 @@ Enjoy your coding!
 
 
 <a name="v2_0"></a>
-##What's new in version 2.0
+## What's new in version 2.0
 
 Version 2.0 upgrades the code to Swift 6 and compiles with complete concurrency checking.
 
