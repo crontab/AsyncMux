@@ -18,7 +18,7 @@ struct AsyncMuxDemoApp: App {
                 switch newPhase {
                     case .background:
                         Task {
-                            await MuxRepository.shared.saveAll()
+                            await MuxRepository.saveAll()
                         }
                     case .inactive:
                         break

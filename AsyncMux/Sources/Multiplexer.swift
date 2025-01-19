@@ -29,15 +29,22 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     public typealias OnFetch = @Sendable () async throws -> T
 
-    public let cacheKey: String?
-
     /// Instantiates a `Multiplexer<T>` object with a given `onFetch` block.
-    /// - parameter cacheKey (optional): a string to be used as a file name for the disk cache. If omitted, an automatic name is generated based on `T`'s description. NOTE: if you have several  multiplexers whose `T` is the same, you *should* define unique non-conflicting `cacheKey` parameters for each.
+    /// - parameter cacheKey (optional): a string to be used as a file name for the disk cache. If specified, this multiplexer also registers itself in the global repository.
     /// - parameter onFetch: an async throwing block that should retrieve an object presumably in an asynchronous manner.
     nonisolated
     public init(cacheKey: String? = nil, onFetch: @escaping OnFetch) {
         self.cacheKey = cacheKey
         self.onFetch = onFetch
+        if let cacheKey {
+            MuxRepository.register(key: cacheKey, mux: self)
+        }
+    }
+
+    deinit {
+        if let cacheKey {
+            MuxRepository.unregister(key: cacheKey)
+        }
     }
 
     /// Performs a request either by calling the `onFetch` block supplied in the multiplexer's constructor, or by returning the previously cached object, if available. Multiple simultaneous calls to `request()` are handled by the Multiplexer so that only one `onFetch` operation can be invoked at a time, but all callers of `request()` will eventually receive the result.
@@ -80,6 +87,7 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     // Private part
 
+    private let cacheKey: String?
     private let onFetch: OnFetch
 
     internal var storedValue: T?
