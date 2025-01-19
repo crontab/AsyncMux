@@ -57,7 +57,7 @@ final class WeatherAPI {
             }
             throw error
         }
-    }.register()
+    }
 
     private static func fetchCurrent(lat: Double, lon: Double) async throws -> Weather {
         try await URLRequest(getURL: URL(string: "https://api.open-meteo.com/v1/forecast?latitude=\(lat)&longitude=\(lon)&current_weather=true")!)
