@@ -10,6 +10,7 @@
 - [AsyncMedia](#media-downloader)
 - [Experimental features](#experimental)
 - [Building and linking](#building)
+- [What's new in version 2.0](#v2_0)
 - [Authors](#authors)
 
 
@@ -81,16 +82,13 @@ Most importantly, `request()` can handle multiple simultaneous calls and ensures
 
 ### Caching
 
-By default, `Multiplexer<T>` can store objects as JSON files in the local cache directory. This is done by explicitly calling `save()` on the multiplexer object, or alternatively `saveAll()` on the global repository `MuxRepository` if the multiplexer object is registered there. Registration can be done like so:
+By default, `Multiplexer<T>` can store objects as JSON files in the local cache directory. To enable this feature, provide a unique `cacheKey` in the multiplexer's constructor:
     
 ```swift
 let myProfile = Multiplexer<UserProfile>(cacheKey: "MyProfile") {
     try await Backend.fetchMyProfile()
 }
-.register()
 ```
-
-Notice the argument `cacheKey:` in multiplexer's constructor: this is necessary for storing the object on disk (although optional if you don't use disk caching). 
 
 The objects stored on disk can be reused by the multiplexer even after TTL expires if your `onFetch` fails due to a connectivity problem. You can additionally tell the multiplexer to ignore the error and fetch the cached object by throwing a `SilencableError` in your `onFetch` method.
 
@@ -147,11 +145,11 @@ More detailed descriptions on each method can be found in the source file [Multi
 <a name="mux-repository"></a>
 ## MuxRepository
 
-`MuxRepository` is a global actor-singleton that can be used for centralized operations such as `clearAll()` and `saveAll()` on all multiplexer instances in your app. You should register each instance using the `register()` method on each multiplexer instance. Note that MuxRepository retains the objects, which generally should not be a problem for singletons. Use `unregister()` in case you need to release an instance previously registered with the repository.
+`MuxRepository` is a collection of asynchronous static functions that can be used for centralized operations such as `clearAll()` and `saveAll()` on all registered multiplexer instances in your app. You should register each instance by providing a unique `cacheKey` when creating each multiplexer instance.
 
-By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store objects on disk. If you want to keep the objects to ensure they survive app reboots, make sure you call `MuxRepository.shared.saveAll()` when the app is sent to background, [like shown in the Demo app](AsyncMuxDemo/Sources/AsyncMuxDemoApp.swift).
+By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store objects on disk. If you want to keep the objects to ensure they survive app reboots, make sure you call `MuxRepository.saveAll()` when the app is sent to background, [like shown in the Demo app](AsyncMuxDemo/Sources/AsyncMuxDemoApp.swift).
 
-`MuxRepository.shared.clearAll()` discards all memory and disk objects. This is useful when e.g. the user signs out of your system and you need to make sure no traces are left of data related to a given user in memory or disk.
+`MuxRepository.clearAll()` discards all memory and disk objects. This is useful when e.g. the user signs out of your system and you need to make sure no traces are left of data related to a given user in memory or disk.
 
 
 <a name="media-downloader"></a>
@@ -188,6 +186,14 @@ If you want to try the demo, launch the `AsyncMux.xcworkspace` file. Weather API
 The AsyncMux framework doesn't have any 3rd party dependencies.
 
 Enjoy your coding!
+
+
+<a name="v2_0"></a>
+##What's new in version 2.0
+
+Version 2.0 upgrades the code to Swift 6 and compiles with complete concurrency checking.
+
+This is an incompatible upgrade of the framework but shouldn't cause much trouble: it removes the `register()` and `unregister()` methods from MuxRepository, as well as makes the latter a fully static interface, i.e. no `.shared` instance is available anymore. Registration of multiplexers is now done by specifying the `cacheKey` parameter in the constructor.
 
 <a name="authors"></a>
 ## Authors
