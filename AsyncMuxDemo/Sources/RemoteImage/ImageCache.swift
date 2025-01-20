@@ -46,9 +46,9 @@ final class ImageCache {
     }
 
 
-    @AsyncMedia
+    @AsyncMediaActor
     private static func requestRemote(_ url: URL) async throws -> Image {
-        let localURL = try await AsyncMedia.shared.request(url: url)
+        let localURL = try await AsyncMedia.request(url: url)
         guard let uiImage = UIImage(contentsOfFile: localURL.path) else {
             try? FileManager.default.removeItem(at: localURL) // reove the damaged file
             throw AppError(code: "cached_file_damaged", message: "Internal: cached file damaged")

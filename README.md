@@ -145,7 +145,7 @@ More detailed descriptions on each method can be found in the source file [Multi
 <a name="mux-repository"></a>
 ## MuxRepository
 
-`MuxRepository` is a collection of asynchronous static functions that can be used for centralized operations such as `clearAll()` and `saveAll()` on all registered multiplexer instances in your app. You should register each instance by providing a unique `cacheKey` when creating each multiplexer instance.
+`MuxRepository` is a collection of asynchronous static functions that can be used for centralized operations such as `clearAll()` and `saveAll()` on all registered multiplexer instances in your app. You should register each instance by providing a unique `cacheKey` when creating multiplexer instances.
 
 By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store objects on disk. If you want to keep the objects to ensure they survive app reboots, make sure you call `MuxRepository.saveAll()` when the app is sent to background, [like shown in the Demo app](AsyncMuxDemo/Sources/AsyncMuxDemoApp.swift).
 
@@ -155,19 +155,19 @@ By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store object
 <a name="media-downloader"></a>
 ## AsyncMedia
 
-`AsyncMedia` is a global actor-singleton that provides downloading, multiplexing and caching facility for arbitrary large files that are considered immutable.
+`AsyncMedia` is a fully static interface that provides a downloading, multiplexing and caching facility for arbitrary large files that are considered immutable.
 
 Like with other multiplexers, `AsyncMedia` ensures that for each remote URL only one download process is active regrdless of the number of times the `request(url:)` was called simultaneously.
 
 The download process is based on streaming, which means memory used by each download process is fixed and doesn't depend on the file size.
 
-Each file you request using `AsyncMedia.shared.request(url:)` is downloaded and stored locally in the app's cache directory; the local file URL is then returned asynchronously. Subsequent calls to `request(url:)` for the same URL will return the local file URL immediately.
+Each file you request using `AsyncMedia.request(url:)` is downloaded and stored locally in the app's cache directory; the local file URL is then returned asynchronously. Subsequent calls to `request(url:)` for the same URL will return the local file URL immediately.
 
 Use `cachedValue(url:)` to get the local file URL of a cached object, if available.
 
-Note that the remote files are assumed to be immutable, and therefore no time-to-live is maintained, i.e. it is assumed that the file can be stored in the local cache indefinitely. Note also that the OS can wipe the app's cache directory if it needs to free space, which normally should happen when the app is not running.
+Note that the remote files are assumed to be immutable, and therefore no time-to-live is maintained, i.e. it is assumed that the file can be stored in the local cache indefinitely. Note also that the OS can wipe the app's cache directory if it needs to free space, which normally should happen when the app is not running. Additionally, you can purge the media cache directory by calling `AsyncMedia.clear()`.
 
-Even though the latest SwiftUI versions come with the `AsyncImage` interface, its behavior is not very well defined in the documentation. We therefore included a complete package for in-memory LRU caching of images backed by `AsyncMedia`, as well as the [`RemoteImage` component](AsyncMuxDemo/Sources/RemoteImage) that uses both, as a part of the demo app.
+The demo app includes a complete package for in-memory LRU caching of images backed by `AsyncMedia`, as well as the [`RemoteImage` UI component](AsyncMuxDemo/Sources/RemoteImage) that uses both. Effectively `RemoteImage` is an alternative to SwiftUI's `AsyncImage` that in addition can cache immutable images locally.
 
 
 <a name="experimental"></a>
@@ -191,9 +191,9 @@ Enjoy your coding!
 <a name="v2_0"></a>
 ## What's new in version 2.0
 
-Version 2.0 upgrades the code to Swift 6 and compiles with complete concurrency checking.
-
-This is an incompatible upgrade of the framework but shouldn't cause much trouble: it removes the `register()` and `unregister()` methods from MuxRepository, as well as makes the latter a fully static interface, i.e. no `.shared` instance is available anymore. Registration of multiplexers is now done by specifying the `cacheKey` parameter in the constructor.
+- Upgraded the project to Swift 6; fixed all concurrency issues
+- Removed `register()` and `unregister()` methods from `MuxRepository`; registration is now automatic as long as `cacheKey` is provided when creating an instance of a multiplexer.
+- `MuxRepository` and `AsyncMedia` are now static interfaces with async methods, i.e. no `shared` instance anymore.
 
 <a name="authors"></a>
 ## Authors
