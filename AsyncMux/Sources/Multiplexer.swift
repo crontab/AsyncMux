@@ -84,6 +84,16 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
         clearMemory()
     }
 
+    /// Overrides the value stored in memory if a given value is newer than the one stored, or if the cache is empty.
+    public func store(value: T) {
+        let newTime = Date().timeIntervalSinceReferenceDate
+        if newTime >= completionTime {
+            storedValue = value
+            completionTime = newTime
+            isDirty = true
+        }
+    }
+
 
     // Private part
 
@@ -146,11 +156,5 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     internal var isExpired: Bool {
         Date().timeIntervalSinceReferenceDate > completionTime + defaultTTL
-    }
-
-    internal func store(value: T) {
-        storedValue = value
-        completionTime = Date().timeIntervalSinceReferenceDate
-        isDirty = true
     }
 }

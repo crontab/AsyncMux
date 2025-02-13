@@ -103,6 +103,11 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
         clearMemory()
     }
 
+    /// Overrides the value stored in memory if a given value is newer than the one stored, or if the cache is empty.
+    public func store(value: T, for key: K) {
+        (muxMap[key] ?? createMux(for: key)).store(value: value)
+    }
+
 
     // Private part
 
@@ -119,16 +124,9 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
         return mux
     }
 
-
-    // MARK: - MultiRequester support
-
     internal func storedValue(for key: K) -> T? {
         muxMap[key].flatMap { mux in
             !mux.isExpired ? mux.storedValue : nil
         }
-    }
-
-    internal func store(value: T, for key: K) {
-        (muxMap[key] ?? createMux(for: key)).store(value: value)
     }
 }
