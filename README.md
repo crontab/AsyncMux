@@ -173,11 +173,13 @@ The demo app includes a complete package for in-memory LRU caching of images bac
 <a name="experimental"></a>
 ## Experimental features
 
-**Zip**: `Zip<T>` allows to combine two or more parallel asynchronous actions into one and receive the results from all of them at once, when they become available. The result of the execution is returned as an array of T. Additionally, a family of functions `zip(...)` provide shortcuts for a fixed number of async calls (up to 5). For an example usage see function `reload()` in [the demo app's `ContentView`](AsyncMuxDemo/Sources/ContentView.swift).
+**Zip**: `Zip<T>` allows to combine two or more parallel asynchronous actions into one and receive the results from all of them at once, when they become available. The result of the execution is returned as an array of T. For example usage see function `reload()` in [the demo app's `ContentView`](AsyncMuxDemo/Sources/ContentView.swift).
+
+Additionally, a family of global functions `zip(...)` provide shortcuts for a fixed number of async calls (up to 5).
 
 See: [`Zip.swift`](AsyncMux/Sources/Zip.swift). 
 
-**MultiRequester**: If your backend supports multiple-ID requests (e.g.`/profiles/[id1,id2]`), then MultiRequester can be used in tandem with an existing MultiplexerMap object to combine single and multi-requests into the same caching infrastructure. Multi-ID requests made via MultiRequester's `request(...)` method can update the map linked to it and also reuse the cached values stored by the map. Thus, objects will be cached locally regardless of whether they were requested via singular endpoints or multi-ID ones; and on the other hand, multi-ID requests can save bandwidth by reusing some of the objects already cached and requesting fewer ID's (or even none) from the backend.
+**MultiRequester**: If your backend supports multiple-ID requests (e.g.`/profiles/[id1,id2]`), then MultiRequester can be used in tandem with an existing MultiplexerMap object to combine single and multi-requests into the same caching infrastructure. Multi-ID requests made via MultiRequester's `request(...)` method can update the map linked to it and also reuse the cached values stored by the map. Thus, objects will be cached locally regardless of whether they were requested via singular endpoints or multi-ID ones; and on the other hand, multi-ID requests can save bandwidth by reusing the objects already cached and requesting fewer ID's (or even none) from the backend.
 
 See: [`MultiRequester.swift`](AsyncMux/Sources/MultiRequester.swift) 
 
