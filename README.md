@@ -10,7 +10,7 @@
 - [AsyncMedia](#media-downloader)
 - [Experimental features](#experimental)
 - [Building and linking](#building)
-- [What's new in version 2.0](#v2_0)
+- [Change history](#changes)
 - [Authors](#authors)
 
 
@@ -197,8 +197,12 @@ The AsyncMux framework doesn't have any 3rd party dependencies.
 Enjoy your coding!
 
 
-<a name="v2_0"></a>
-## What's new in version 2.0
+<a name="changes"></a>
+## AsyncMux v2.1
+
+- Added the experimental `MultiRequest` interface. The idea comes from the previous incarnation of the library where it worked pretty well for client apps.
+
+## AsyncMux v2.0
 
 - Upgraded the project to Swift 6; fixed all concurrency issues
 - Removed `register()` and `unregister()` methods from `MuxRepository`; registration is now automatic as long as `cacheKey` is provided when creating an instance of a multiplexer.
