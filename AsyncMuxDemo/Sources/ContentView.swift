@@ -49,6 +49,14 @@ struct ContentView: View {
             }
 
             .errorAlert($error)
+
+            // Purge memory caches on memory warnings from the OS
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification, object: nil)) { _ in
+                Task {
+                    await MuxRepository.clearMemory()
+                    ImageCache.clear()
+                }
+            }
     }
 
     private func listView() -> some View {

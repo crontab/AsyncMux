@@ -149,6 +149,8 @@ More detailed descriptions on each method can be found in the source file [Multi
 
 By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store objects on disk. If you want to keep the objects to ensure they survive app reboots, make sure you call `MuxRepository.saveAll()` when the app is sent to background, [like shown in the Demo app](AsyncMuxDemo/Sources/AsyncMuxDemoApp.swift).
 
+`MuxRepository.clearMemory()` discards all objects stored in memory. Useful when handling memory warnings coming from the OS (see the demo app for sample usage).
+
 `MuxRepository.clearAll()` discards all memory and disk objects. This is useful when e.g. the user signs out of your system and you need to make sure no traces are left of data related to a given user in memory or disk.
 
 
