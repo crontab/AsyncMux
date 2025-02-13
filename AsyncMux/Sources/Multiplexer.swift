@@ -133,9 +133,7 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
         do {
             let result = try await task!.value
             task = nil
-            storedValue = result
-            completionTime = Date().timeIntervalSinceReferenceDate
-            isDirty = true
+            store(value: result)
             return result
         }
         catch {
@@ -146,7 +144,13 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
         }
     }
 
-    private var isExpired: Bool {
+    internal var isExpired: Bool {
         Date().timeIntervalSinceReferenceDate > completionTime + defaultTTL
+    }
+
+    internal func store(value: T) {
+        storedValue = value
+        completionTime = Date().timeIntervalSinceReferenceDate
+        isDirty = true
     }
 }

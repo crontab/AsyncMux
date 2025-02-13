@@ -43,14 +43,7 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
 
     /// Performs a request either by calling the `onFetch` block supplied in the multiplexer's constructor, or by returning the previously cached object, if available. Multiple simultaneous calls to `request(key:)` are handled by the MultiplexerMap so that only one `onFetch` operation is invoked at a time for any given `key`, but all callers of `request(key:)` will eventually receive the result.
     public func request(key: K) async throws -> T {
-        let mux = muxMap[key] ?? {
-            let onFetch = onFetch // avoid capture of `self`
-            let mux = Multiplexer {
-                try await onFetch(key)
-            }
-            muxMap[key] = mux
-            return mux
-        }()
+        let mux = muxMap[key] ?? createMux(for: key)
         return try await mux.request(domain: cacheKey, key: key)
     }
 
@@ -116,4 +109,26 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
     private let cacheKey: String?
     private let onFetch: OnFetch
     private var muxMap: [K: Multiplexer<T>] = [:]
+
+    private func createMux(for key: K) -> Multiplexer<T> {
+        let onFetch = onFetch // avoid capture of `self`
+        let mux = Multiplexer {
+            try await onFetch(key)
+        }
+        muxMap[key] = mux
+        return mux
+    }
+
+
+    // MARK: - MultiRequester support
+
+    internal func storedValue(for key: K) -> T? {
+        muxMap[key].flatMap { mux in
+            !mux.isExpired ? mux.storedValue : nil
+        }
+    }
+
+    internal func store(value: T, for key: K) {
+        (muxMap[key] ?? createMux(for: key)).store(value: value)
+    }
 }

@@ -8,9 +8,7 @@
 import Foundation
 
 
-// This is an experimental module not yet documented.
-
-
+/// [EXPERIMENTAL]
 /// `Zip<T>` allows to combine two or more parallel asynchronous actions into one and receive the results from all of them at once, when they become available. The result of the execution is returned as an array of T.
 public struct Zip<T: Sendable>: Sendable {
 
