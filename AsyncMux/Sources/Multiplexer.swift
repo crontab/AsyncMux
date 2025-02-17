@@ -56,7 +56,7 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
     @discardableResult
     public func refresh(_ flag: Bool = true) -> Self {
         if flag {
-            refreshFlag = true
+            clearMemory()
         }
         return self
     }
@@ -102,13 +102,12 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     internal var storedValue: T?
     internal var isDirty: Bool = false
-    internal var refreshFlag: Bool = false
 
     private var task: Task<T, Error>?
     private var completionTime: TimeInterval = 0
 
     internal func request(domain: String?, key: LosslessStringConvertible?) async throws -> T {
-        if !refreshFlag, !isExpired {
+        if !isExpired {
             if let storedValue {
                 return storedValue
             }
@@ -117,8 +116,6 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
                 return cachedValue
             }
         }
-
-        refreshFlag = false
 
         if task == nil {
             task = Task {

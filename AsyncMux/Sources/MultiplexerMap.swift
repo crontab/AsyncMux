@@ -51,7 +51,7 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
     @discardableResult
     public func refresh(_ flag: Bool = true, key: K) -> Self {
         if flag {
-            muxMap[key]?.refreshFlag = true
+            muxMap[key]?.refresh()
         }
         return self
     }
@@ -61,7 +61,7 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
     public func refresh(_ flag: Bool = true) -> Self {
         if flag {
             muxMap.values.forEach {
-                $0.refreshFlag = true
+                $0.refresh()
             }
         }
         return self
