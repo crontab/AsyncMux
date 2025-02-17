@@ -19,6 +19,6 @@ let package = Package(
             dependencies: [],
             path: "AsyncMux/Sources"
         ),
-    ],
-	swiftLanguageVersions: [.version("6")]
+    ]
+	swiftLanguageModels: [.version("6")]
 )
