@@ -48,6 +48,14 @@ public class MultiRequester<K: MuxKey, T: Codable & Sendable & Identifiable> whe
         return values
     }
 
+    @discardableResult
+    public func refresh(_ flag: Bool = true) -> Self {
+        if flag {
+            map.refresh()
+        }
+        return self
+    }
+
     // Private part
 
     private let map: MultiplexerMap<K, T>
