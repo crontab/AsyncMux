@@ -14,7 +14,7 @@ struct AsyncMuxDemoApp: App {
 
     var body: some Scene {
         scene()
-            .onChange(of: scenePhase) { newPhase in
+            .onChange(of: scenePhase) { _, newPhase in
                 switch newPhase {
                     case .background:
                         Task {

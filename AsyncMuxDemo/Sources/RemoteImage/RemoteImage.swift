@@ -9,41 +9,47 @@ import AsyncMux
 
 
 struct RemoteImage<P: View, I: View>: View {
-
-    let url: URL?
-    @ViewBuilder let content: (Image) -> I
-    @ViewBuilder let placeholder: (Error?) -> P
-
-    @State private var result: Image?
-    @State private var error: Error?
-
+    
+    init(url: URL?, @ViewBuilder content: @escaping (Image) -> I, @ViewBuilder placeholder: @escaping (Error?) -> P) {
+        self.model = url.map { Model(url: $0) }
+        self.content = content
+        self.placeholder = placeholder
+    }
+    
+    private let model: Model?
+    @ViewBuilder private let content: (Image) -> I
+    @ViewBuilder private let placeholder: (Error?) -> P
+    
     var body: some View {
-        if let result {
-            content(result)
+        if let image = model?.image {
+            content(image)
         }
-
-        else if let error {
+        else if let error = model?.error {
             placeholder(error)
         }
-
-        else if let image = url.flatMap({ ImageCache.loadFromMemory($0) }) {
-            content(image)
-                .task {
-                    result = image // the view will be updated twice; is there a better way?
-                }
-        }
-
         else {
             placeholder(nil)
-                .task {
-                    guard let url else { return }
+        }
+    }
+    
+    
+    @MainActor
+    @Observable final class Model {
+        var image: Image?
+        var error: Error?
+        
+        init(url: URL) {
+            image = ImageCache.loadFromMemory(url)
+            if image == nil {
+                Task {
                     do {
-                        result = try await ImageCache.request(url)
+                        self.image = try await ImageCache.request(url)
                     }
                     catch {
                         self.error = error
                     }
                 }
+            }
         }
     }
 }
@@ -51,7 +57,7 @@ struct RemoteImage<P: View, I: View>: View {
 
 #Preview {
     let url = URL(string: "https://images.unsplash.com/photo-1513051265668-0ebab31671ae")!
-
+    
     return RemoteImage(url: url) { image in
         image
             .resizable()
@@ -60,6 +66,6 @@ struct RemoteImage<P: View, I: View>: View {
     } placeholder: { error in
         Text(error?.localizedDescription ?? "LOADING...")
             .font(.caption)
-            .padding(24)
+            .padding()
     }
 }
