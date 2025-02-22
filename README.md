@@ -200,11 +200,20 @@ Enjoy your coding!
 
 
 <a name="changes"></a>
-## AsyncMux v2.1
+## Change log
+### v2.2
+
+- Bumped both the demo app and framework to iOS 17.
+- `store(value:)` and `storedValue` methods for both `Multiplexer` and `MultiplexerMap` are now public.
+- Experimental: added a `refresh()` method to `MultiRequester`; it forwards the refresh request to the map tied to it.
+- Demo app: fixed an issue in the `RemoteImage` implementation; it now uses an `@Observable` view model.
+- Internal: removed the `refreshFlag` property in multiplexers, it complicated the logic and introduced problems.
+
+### v2.1
 
 - Added the experimental `MultiRequest` interface. The idea comes from the previous incarnation of the library where it worked pretty well for client apps.
 
-## AsyncMux v2.0
+### v2.0
 
 - Upgraded the project to Swift 6; fixed all concurrency issues
 - Removed `register()` and `unregister()` methods from `MuxRepository`; registration is now automatic as long as `cacheKey` is provided when creating an instance of a multiplexer.
