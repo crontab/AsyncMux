@@ -22,7 +22,12 @@ public class MultiRequester<K: MuxKey, T: Codable & Sendable & Identifiable> whe
         self.onFetch = onFetch
     }
 
-    /// This method attempts to retrieve objects associated with the set of keys [K]. The number of the results is not guaranteed to be the same as the number of keys, neither is the order guaranteed to be the same.
+    /// This method attempts to retrieve objects associated with the set of keys `K`. The number of the results is not guaranteed to be the same as the number of keys, neither is the order guaranteed to be the same.
+    public func request(keys: [K]) async throws -> [K: T] {
+        try await request(keys: Set(keys))
+    }
+
+    /// This method attempts to retrieve objects associated with the set of keys `K`. The number of the results is not guaranteed to be the same as the number of keys, neither is the order guaranteed to be the same.
     public func request(keys: Set<K>) async throws -> [K: T] {
         var values: [K: T] = [:]
 
