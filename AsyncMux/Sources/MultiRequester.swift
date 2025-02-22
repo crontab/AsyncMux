@@ -14,7 +14,7 @@ import Foundation
 @MuxActor
 public class MultiRequester<K: MuxKey, T: Codable & Sendable & Identifiable> where T.ID == K {
 
-    public typealias OnMultiFetch = @Sendable ([K]) async throws -> [T]
+    public typealias OnMultiFetch = @Sendable (Set<K>) async throws -> [T]
 
     nonisolated
     public init(map: MultiplexerMap<K, T>, onFetch: @escaping OnMultiFetch) {
@@ -23,7 +23,7 @@ public class MultiRequester<K: MuxKey, T: Codable & Sendable & Identifiable> whe
     }
 
     /// This method attempts to retrieve objects associated with the set of keys [K]. The number of the results is not guaranteed to be the same as the number of keys, neither is the order guaranteed to be the same.
-    public func request(keys: [K]) async throws -> [K: T] {
+    public func request(keys: Set<K>) async throws -> [K: T] {
         var values: [K: T] = [:]
 
         // See if there are any good non-expired cached values in the map object; at the same time, build the set of keys to be used in a call to the user's fetcher function. (Too much packed into a single expression?)
