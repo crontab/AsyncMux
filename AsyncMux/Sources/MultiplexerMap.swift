@@ -108,6 +108,13 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
         (muxMap[key] ?? createMux(for: key)).store(value: value)
     }
 
+    /// Returns the value currently cached in memory
+    public func storedValue(for key: K) -> T? {
+        muxMap[key].flatMap { mux in
+            !mux.isExpired ? mux.storedValue : nil
+        }
+    }
+
 
     // Private part
 
@@ -122,11 +129,5 @@ public final class MultiplexerMap<K: MuxKey, T: Codable & Sendable>: MuxReposito
         }
         muxMap[key] = mux
         return mux
-    }
-
-    internal func storedValue(for key: K) -> T? {
-        muxMap[key].flatMap { mux in
-            !mux.isExpired ? mux.storedValue : nil
-        }
     }
 }

@@ -94,13 +94,15 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
         }
     }
 
+    /// Returns the value currently cached in memory
+    public private(set) var storedValue: T?
+
 
     // Private part
 
     private let cacheKey: String?
     private let onFetch: OnFetch
 
-    internal var storedValue: T?
     internal var isDirty: Bool = false
 
     private var task: Task<T, Error>?
