@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CryptoKit
 
 
 public extension FileManager {
@@ -38,7 +39,27 @@ public extension FileManager {
 
 public extension URL {
     func toFileSystemSafeString() -> String {
-        absoluteString.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+        let u = absoluteString.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+        // macOS has a limitation of 255 for file names, therefore for longer URL's we use a SHA hash instead
+        return u.count < 255 ? u : u.toURLSafeHash(max: 255)
+    }
+}
+
+
+public extension String {
+    func toURLSafeHash(max: Int) -> String {
+        String(toSHA256().toURLSafeBase64().suffix(max))
+    }
+
+    func toSHA256() -> Data {
+        data(using: .utf8).map { Data(SHA256.hash(data: $0)) } ?? Data()
+    }
+}
+
+
+public extension Data {
+    func toURLSafeBase64() -> String {
+        base64EncodedString().replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "=", with: "")
     }
 }
 
