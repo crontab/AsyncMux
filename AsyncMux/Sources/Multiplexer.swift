@@ -94,12 +94,17 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
         }
     }
 
-    /// Returns the value currently cached in memory
-    public private(set) var storedValue: T?
+    /// Returns the value currently stored in memory or on disk, ignoring the TTL
+    public var cachedValue: T? {
+        storedValue ?? cacheKey.flatMap {
+            MuxCacher.load(domain: MuxRootDomain, key: $0, type: T.self)
+        }
+    }
 
 
     // Private part
 
+    internal private(set) var storedValue: T? // exposed for MultiplexerMap
     private let cacheKey: String?
     private let onFetch: OnFetch
 
