@@ -8,8 +8,8 @@
 import Foundation
 
 
-private let defaultTTL: TimeInterval = 30 * 60
-private let muxRootDomain = "_Root.Domain"
+private let DefaultTTL: TimeInterval = 30 * 60
+private let MuxRootDomain = "_Root.Domain"
 
 @globalActor
 public actor MuxActor {
@@ -49,7 +49,7 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
 
     /// Performs a request either by calling the `onFetch` block supplied in the multiplexer's constructor, or by returning the previously cached object, if available. Multiple simultaneous calls to `request()` are handled by the Multiplexer so that only one `onFetch` operation can be invoked at a time, but all callers of `request()` will eventually receive the result.
     public func request() async throws -> T {
-        return try await request(domain: muxRootDomain, key: cacheKey)
+        return try await request(domain: MuxRootDomain, key: cacheKey)
     }
 
     /// "Soft" refresh: the next call to `request()` will attempt to retrieve the object again, without discarding the caches in case of a failure. `refresh()` does not have an immediate effect on any ongoing asynchronous requests. Can be chained with the subsequent `request()`.
@@ -65,7 +65,7 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
     public func save() {
         if isDirty, let storedValue {
             if let cacheKey {
-                MuxCacher.save(storedValue, domain: muxRootDomain, key: cacheKey)
+                MuxCacher.save(storedValue, domain: MuxRootDomain, key: cacheKey)
             }
             isDirty = false
         }
@@ -79,7 +79,7 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
     /// Clears the memory and disk caches. Will trigger a full fetch on the next `request()` call.
     public func clear() {
         if let cacheKey {
-            MuxCacher.delete(domain: muxRootDomain, key: cacheKey)
+            MuxCacher.delete(domain: MuxRootDomain, key: cacheKey)
         }
         clearMemory()
     }
@@ -154,6 +154,6 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
     }
 
     internal var isExpired: Bool {
-        Date().timeIntervalSinceReferenceDate > completionTime + defaultTTL
+        Date().timeIntervalSinceReferenceDate > completionTime + DefaultTTL
     }
 }

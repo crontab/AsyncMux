@@ -87,7 +87,7 @@ struct LRUCache<K: Hashable, E>: Sequence {
     }
 
 
-    __consuming func makeIterator() -> Iterator {
+    consuming func makeIterator() -> Iterator {
         return Iterator(iteree: self)
     }
 
