@@ -97,7 +97,8 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
     /// Returns the value currently stored in memory or on disk, ignoring the TTL
     public var cachedValue: T? {
         storedValue ?? cacheKey.flatMap {
-            MuxCacher.load(domain: MuxRootDomain, key: $0, type: T.self)
+            storedValue = MuxCacher.load(domain: MuxRootDomain, key: $0, type: T.self)
+            return storedValue
         }
     }
 
