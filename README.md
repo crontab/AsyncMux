@@ -157,17 +157,17 @@ By default, the `Multiplexer` and `MultiplexerMap` interfaces don't store object
 <a name="media-downloader"></a>
 ## AsyncMedia
 
-`AsyncMedia` is a fully static interface that provides a downloading, multiplexing and caching facility for arbitrary large files that are considered immutable.
+`AsyncMedia` is a shared actor that provides a downloading, multiplexing and caching facility for arbitrary large files that are considered immutable.
 
 Like with other multiplexers, `AsyncMedia` ensures that for each remote URL only one download process is active regrdless of the number of times the `request(url:)` was called simultaneously.
 
 The download process is based on streaming, which means memory used by each download process is fixed and doesn't depend on the file size.
 
-Each file you request using `AsyncMedia.request(url:)` is downloaded and stored locally in the app's cache directory; the local file URL is then returned asynchronously. Subsequent calls to `request(url:)` for the same URL will return the local file URL immediately.
+Each file you request using `AsyncMedia.shared.request(url:)` is downloaded and stored locally in the app's cache directory; the local file URL is then returned asynchronously. Subsequent calls to `request(url:)` for the same URL will return the local file URL immediately.
 
 Use `cachedValue(url:)` to get the local file URL of a cached object, if available.
 
-Note that the remote files are assumed to be immutable, and therefore no time-to-live is maintained, i.e. it is assumed that the file can be stored in the local cache indefinitely. Note also that the OS can wipe the app's cache directory if it needs to free space, which normally should happen when the app is not running. Additionally, you can purge the media cache directory by calling `AsyncMedia.clear()`.
+Note that the remote files are assumed to be immutable, and therefore no time-to-live is maintained, i.e. it is assumed that the file can be stored in the local cache indefinitely. Note also that the OS can wipe the app's cache directory if it needs to free space, which normally should happen when the app is not running. Additionally, you can purge the media cache directory by calling `AsyncMedia.shared.clear()`.
 
 The demo app includes a complete package for in-memory LRU caching of images backed by `AsyncMedia`, as well as the [`RemoteImage` UI component](AsyncMuxDemo/Sources/RemoteImage) that uses both. Effectively `RemoteImage` is an alternative to SwiftUI's `AsyncImage` that in addition can cache immutable images locally.
 
@@ -217,7 +217,7 @@ Enjoy your coding!
 
 - Upgraded the project to Swift 6; fixed all concurrency issues
 - Removed `register()` and `unregister()` methods from `MuxRepository`; registration is now automatic as long as `cacheKey` is provided when creating an instance of a multiplexer.
-- `MuxRepository` and `AsyncMedia` are now static interfaces with async methods, i.e. no `shared` instance anymore.
+- `MuxRepository` is now a static interface with async methods.
 
 <a name="authors"></a>
 ## Authors
