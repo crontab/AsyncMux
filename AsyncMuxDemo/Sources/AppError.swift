@@ -13,6 +13,7 @@ struct AppError: LocalizedError {
 
     static var notImpl: Self { .init(code: "not_implemented", message: "Not implemented yet") }
     static var unknown: Self { .init(code: "unknown_error", message: "Unknown error") }
+    static var cachedFileDamaged: Self { .init(code: "cached_file_damaged", message: "Internal: damaged cached file") }
 
     var errorDescription: String? {
         message ?? "Application error: \(code)"

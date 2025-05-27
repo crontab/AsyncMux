@@ -5,51 +5,35 @@
 //
 
 import SwiftUI
-import AsyncMux
 
 
 struct RemoteImage<P: View, I: View>: View {
+    let url: URL?
+    @ViewBuilder let content: (Image) -> I
+    @ViewBuilder let placeholder: (Error?) -> P
 
-    init(url: URL?, @ViewBuilder content: @escaping (Image) -> I, @ViewBuilder placeholder: @escaping (Error?) -> P) {
-        self.model = url.map { Model(url: $0) }
-        self.content = content
-        self.placeholder = placeholder
-    }
-
-    private let model: Model?
-    @ViewBuilder private let content: (Image) -> I
-    @ViewBuilder private let placeholder: (Error?) -> P
+    @State private var uiImage: UIImage?
+    @State private var error: Error?
 
     var body: some View {
-        if let image = model?.image {
+        if let image = uiImage.map({ Image(uiImage: $0) }) {
             content(image)
         }
-        else if let error = model?.error {
+        else if let error {
             placeholder(error)
         }
         else {
             placeholder(nil)
-        }
-    }
-
-
-    @MainActor
-    @Observable final class Model {
-        var image: Image?
-        var error: Error?
-
-        init(url: URL) {
-            image = ImageCache.loadFromMemory(url)
-            if image == nil {
-                Task {
-                    do {
-                        self.image = try await ImageCache.request(url)
-                    }
-                    catch {
-                        self.error = error
+                .task {
+                    if let url {
+                        do {
+                            self.uiImage = try await ImageCache.request(url)
+                        }
+                        catch {
+                            self.error = error
+                        }
                     }
                 }
-            }
         }
     }
 }
