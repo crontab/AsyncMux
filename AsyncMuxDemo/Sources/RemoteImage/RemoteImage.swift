@@ -16,24 +16,30 @@ struct RemoteImage<P: View, I: View>: View {
     @State private var error: Error?
 
     var body: some View {
-        if let image = uiImage.map({ Image(uiImage: $0) }) {
-            content(image)
+        Group {
+            if let image = uiImage.map({ Image(uiImage: $0) }) {
+                content(image)
+            }
+            else if let error {
+                placeholder(error)
+            }
+            else {
+                placeholder(nil)
+            }
         }
-        else if let error {
-            placeholder(error)
-        }
-        else {
-            placeholder(nil)
-                .task {
-                    if let url {
-                        do {
-                            self.uiImage = try await ImageCache.request(url)
-                        }
-                        catch {
-                            self.error = error
-                        }
+        .onChange(of: url, initial: true) { oldValue, newValue in
+            uiImage = nil
+            error = nil
+            if let newValue {
+                Task {
+                    do {
+                        self.uiImage = try await ImageCache.request(newValue)
+                    }
+                    catch {
+                        self.error = error
                     }
                 }
+            }
         }
     }
 }
