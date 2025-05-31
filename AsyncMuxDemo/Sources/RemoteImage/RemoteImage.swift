@@ -16,7 +16,7 @@ struct RemoteImage<P: View, I: View>: View {
     @State private var error: Error?
 
     var body: some View {
-        Group {
+        ZStack {
             if let image = uiImage.map({ Image(uiImage: $0) }) {
                 content(image)
             }
