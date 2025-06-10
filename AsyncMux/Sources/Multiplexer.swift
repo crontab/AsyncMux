@@ -13,7 +13,7 @@ private let MuxRootDomain = "_Root.Domain"
 
 @globalActor
 public actor MuxActor {
-    public static var shared = MuxActor()
+    public static let shared = MuxActor()
 }
 
 
