@@ -13,6 +13,7 @@
 		361F7D152C32A0750050F657 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361F7D142C32A0750050F657 /* ImageCache.swift */; };
 		361F7D182C32A0EA0050F657 /* LRUCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361F7D172C32A0EA0050F657 /* LRUCache.swift */; };
 		3625CE1E296A283800D09A8F /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3625CE1D296A283800D09A8F /* Globals.swift */; };
+		362906AE2E0BE68C00B94290 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362906AD2E0BE68C00B94290 /* NetworkMonitor.swift */; };
 		36C131B829805B8E0076E476 /* AsyncMux.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36C131B729805B8E0076E476 /* AsyncMux.framework */; };
 		36C131B929805B8E0076E476 /* AsyncMux.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 36C131B729805B8E0076E476 /* AsyncMux.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		36FB7010296A10F90006ACBA /* AsyncMuxDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB700F296A10F90006ACBA /* AsyncMuxDemoApp.swift */; };
@@ -42,6 +43,7 @@
 		361F7D142C32A0750050F657 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		361F7D172C32A0EA0050F657 /* LRUCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LRUCache.swift; sourceTree = "<group>"; };
 		3625CE1D296A283800D09A8F /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
+		362906AD2E0BE68C00B94290 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		368523012C391B31006D6846 /* AsyncMuxDemo.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = AsyncMuxDemo.entitlements; sourceTree = "<group>"; };
 		368523022C391B31006D6846 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		36C131B729805B8E0076E476 /* AsyncMux.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AsyncMux.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -108,6 +110,7 @@
 			children = (
 				361F7D162C32A09C0050F657 /* RemoteImage */,
 				3625CE1D296A283800D09A8F /* Globals.swift */,
+				362906AD2E0BE68C00B94290 /* NetworkMonitor.swift */,
 				36FB701F296A14400006ACBA /* AppError.swift */,
 				36FB701D296A12D20006ACBA /* URLRequestEx.swift */,
 				360EBA4D296A2C10001EC729 /* WeatherAPI.swift */,
@@ -195,6 +198,7 @@
 				36FB7012296A10F90006ACBA /* ContentView.swift in Sources */,
 				360EBA56296A5388001EC729 /* ErrorAlert.swift in Sources */,
 				36FB701E296A12D20006ACBA /* URLRequestEx.swift in Sources */,
+				362906AE2E0BE68C00B94290 /* NetworkMonitor.swift in Sources */,
 				361F7D152C32A0750050F657 /* ImageCache.swift in Sources */,
 				360EBA4E296A2C10001EC729 /* WeatherAPI.swift in Sources */,
 				361F7D182C32A0EA0050F657 /* LRUCache.swift in Sources */,

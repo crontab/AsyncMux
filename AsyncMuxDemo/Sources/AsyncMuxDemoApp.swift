@@ -12,6 +12,10 @@ import AsyncMux
 struct AsyncMuxDemoApp: App {
     @Environment(\.scenePhase) var scenePhase
 
+    init() {
+        NetworkMonitor.start()
+    }
+
     var body: some Scene {
         scene()
             .onChange(of: scenePhase) { _, newPhase in

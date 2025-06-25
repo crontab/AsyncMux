@@ -29,29 +29,30 @@ struct ContentView: View {
 
             .task {
                 guard !Globals.isPreview else { return }
-                do {
-                    try await reload()
-                }
-                catch {
-                    self.error = error
-                }
+                await reload()
             }
 
             .refreshable {
                 guard !Globals.isPreview else { return }
-                do {
-                    await WeatherAPI.map.refresh()
-                    try await reload()
-                }
-                catch {
-                    self.error = error
-                }
+                await WeatherAPI.map.refresh()
+                await reload()
             }
 
             .errorAlert($error)
 
+            // Handle internet connection recovery by refreshing the data; this is also called at app startup
+            .onReceive(NotificationCenter.default.publisher(for: .networkDidChangeStatus)) { output in
+                if let connected = output.object as? Bool, connected {
+                    print("Connection is back...")
+                    Task {
+                        await WeatherAPI.map.refresh()
+                        await reload()
+                    }
+                }
+            }
+
             // Purge memory caches on memory warnings from the OS
-            .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification, object: nil)) { _ in
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification)) { _ in
                 Task {
                     await MuxRepository.clearMemory()
                     ImageCache.clear()
@@ -98,19 +99,24 @@ struct ContentView: View {
     }
 
     @MainActor
-    private func reload() async throws {
-        // Create an array of actions for the zipper
-        let actions = placeNames.map { name in
-            { @Sendable in 
-                try await WeatherAPI.map.request(key: name)
+    private func reload() async {
+        do {
+            // Create an array of actions for the zipper
+            let actions = placeNames.map { name in
+                { @Sendable in
+                    try await WeatherAPI.map.request(key: name)
+                }
             }
+            // Execute the array of actions in parallel, get the results in an array and convert them to a dictionary to be used in the UI
+            weather = try await Zip(actions: actions)
+                .result
+                .reduce(into: [String: WeatherItem]()) {
+                    $0[$1.name] = $1
+                }
         }
-        // Execute the array of actions in parallel, get the results in an array and convert them to a dictionary to be used in the UI
-        weather = try await Zip(actions: actions)
-            .result
-            .reduce(into: [String: WeatherItem]()) {
-                $0[$1.name] = $1
-            }
+        catch {
+            self.error = error
+        }
     }
 }
 
