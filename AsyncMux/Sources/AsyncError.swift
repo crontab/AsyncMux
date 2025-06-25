@@ -21,7 +21,7 @@ public struct HTTPError: LocalizedError {
 }
 
 
-public struct SilencableError: LocalizedError {
+public struct SilenceableError: LocalizedError {
     let wrapped: Error?
 
     public init(wrapped: Error?) {
@@ -29,20 +29,28 @@ public struct SilencableError: LocalizedError {
     }
 
     public var errorDescription: String? {
-        wrapped?.localizedDescription ?? "SilencableError"
+        wrapped?.localizedDescription ?? "SilenceableError"
     }
 }
 
 
 public extension Error {
 
-    var isSilencable: Bool {
+    var isSilenceable: Bool {
         if (self as NSError).domain == NSURLErrorDomain {
-            return [NSURLErrorNotConnectedToInternet, NSURLErrorNetworkConnectionLost, NSURLErrorCannotConnectToHost].contains((self as NSError).code)
+            // No connection?
+            return [
+                NSURLErrorCannotFindHost,
+                NSURLErrorCannotConnectToHost,
+                NSURLErrorNetworkConnectionLost,
+                NSURLErrorNotConnectedToInternet,
+                NSURLErrorSecureConnectionFailed,
+                NSURLErrorBackgroundSessionInUseByAnotherProcess
+            ].contains((self as NSError).code)
         }
-        if self is SilencableError {
-            return true
+        else {
+            // Otherwise, user-defined silenceable error?
+            return self is SilenceableError
         }
-        return false
     }
 }

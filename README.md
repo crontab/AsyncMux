@@ -90,13 +90,13 @@ let myProfile = Multiplexer<UserProfile>(cacheKey: "MyProfile") {
 }
 ```
 
-The objects stored on disk can be reused by the multiplexer even after TTL expires if your `onFetch` fails due to a connectivity problem. You can additionally tell the multiplexer to ignore the error and fetch the cached object by throwing a `SilencableError` in your `onFetch` method.
+The objects stored on disk can be reused by the multiplexer even after TTL expires if your `onFetch` fails due to a connectivity problem. You can additionally tell the multiplexer to ignore the error and fetch the cached object by throwing a `SilenceableError` in your `onFetch` method.
 
 The disk storage method is currently hardcoded but will be possible to override in the future releases of the library.
 
 At run time, you can invalidate the cached object using one of the following methods:
 
-- "Soft refresh": chain the `refresh()` method with a call to `request()`: the multiplexer will attempt to fetch the object again, but will not discard the existing cached objects in memory or on disk. In case of a silencable error (i.e. connectivity issue) the older cached object will be used again as a result.
+- "Soft refresh": chain the `refresh()` method with a call to `request()`: the multiplexer will attempt to fetch the object again, but will not discard the existing cached objects in memory or on disk. In case of a silenceable error (i.e. connectivity issue) the older cached object will be used again as a result.
 - "Hard refresh": call `clear()` to discard both memory and disk caches for a given object. The next call to `request()` will attempt to fetch the object and will fail in case of an error.
 
 More detailed descriptions on each method can be found in the source file [Multiplexer.swift](AsyncMux/Sources/Multiplexer.swift).

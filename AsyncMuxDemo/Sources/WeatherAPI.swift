@@ -51,9 +51,9 @@ final class WeatherAPI {
         }
         catch {
             print("ERROR:", error)
-            // When there's no connection CoreLocation returns the below error; we convert it to a silencable one
+            // When there's no connection CoreLocation returns the below error; we convert it to a silenceable one
             if (error as NSError).domain == kCLErrorDomain, (error as NSError).code == 2 {
-                throw SilencableError(wrapped: error)
+                throw SilenceableError(wrapped: error)
             }
             throw error
         }

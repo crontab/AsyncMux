@@ -131,7 +131,7 @@ public final class Multiplexer<T: Codable & Sendable>: MuxRepositoryProtocol {
                     return try await onFetch()
                 }
                 catch {
-                    if error.isSilencable {
+                    if error.isSilenceable {
                         if let storedValue {
                             return storedValue
                         }
