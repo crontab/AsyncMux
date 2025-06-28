@@ -12,6 +12,7 @@ import AsyncMux
 private let CacheCapacity = 20
 
 
+@MainActor
 final class ImageCache {
 
     static func request(_ url: URL) async throws -> UIImage {
@@ -19,33 +20,22 @@ final class ImageCache {
             return image
         }
         let image = try await requestRemote(url)
-        storeToMemory(url: url, image: image)
+        memCache.set(image, forKey: url)
         return image
     }
 
 
     static func loadFromMemory(_ url: URL) -> UIImage? {
-        semaphore.wait()
-        defer { semaphore.signal() }
-        return memCache.touch(key: url)
+        memCache.touch(key: url)
     }
 
 
     static func clear() {
-        semaphore.wait()
-        defer { semaphore.signal() }
         memCache.removeAll()
     }
 
-
+    
     // MARK: - Private part
-
-    private static func storeToMemory(url: URL, image: UIImage) {
-        semaphore.wait()
-        defer { semaphore.signal() }
-        memCache.set(image, forKey: url)
-    }
-
 
     @AsyncMediaActor
     private static func requestRemote(_ url: URL) async throws -> UIImage {
@@ -58,8 +48,7 @@ final class ImageCache {
     }
 
 
-    nonisolated(unsafe)
     private static var memCache = LRUCache<URL, UIImage>(capacity: CacheCapacity)
 
-    private static let semaphore = DispatchSemaphore(value: 1)
+    private init() { }
 }

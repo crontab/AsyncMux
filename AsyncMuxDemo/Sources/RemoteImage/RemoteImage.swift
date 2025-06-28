@@ -28,11 +28,17 @@ struct RemoteImage<P: View, I: View>: View {
             }
         }
         .onChange(of: url, initial: true) { oldValue, newValue in
+            // Try sync load first
+            if let newValue, let image = ImageCache.loadFromMemory(newValue) {
+                uiImage = image
+                return
+            }
             uiImage = nil
             error = nil
             if let newValue {
                 Task {
                     do {
+                        // Now try loading from disk or downloading remote
                         self.uiImage = try await ImageCache.request(newValue)
                     }
                     catch {
