@@ -201,6 +201,17 @@ Enjoy your coding!
 
 <a name="changes"></a>
 ## Change log
+### v2.4
+- Demo: more improvements in RemoteImage and ImageCache modules
+- Demo: network monitor added
+- A better list of silenceable network errors; also typo in the name `Silenceable`
+
+### v2.3
+- Demo: improved `RemoteImage` component, now battle tested
+- Xcode 26 compiler error fix
+- MultiRequester now has overloaded request methods for arrays and for sets
+- Image cache can now use a SHA256 name for URL's longer than 255 since the OS can't handle file names that long
+
 ### v2.2
 
 - Bumped both the demo app and framework to iOS 17.
